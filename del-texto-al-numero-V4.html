@@ -1,0 +1,1364 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Del texto al número</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#FBF8F3; --card:#FFFFFF; --ink:#1F2A44; --muted:#5B6478; --line:#E9E3D8;
+  --violet:#6E4BA8; --violet-soft:#EFE9F8; --orange:#F2A71B; --orange-soft:#FEF4E2;
+  --green:#5E9E45; --green-soft:#EAF4E4; --pink:#C2185B; --pink-soft:#FBE5EE;
+  --yellow:#FFD45C; --yellow-soft:#FFF7DB; --blue:#4472C4; --blue-soft:#E8EEF9;
+  --radius:18px; --shadow:0 6px 24px rgba(31,42,68,.08);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Nunito',system-ui,sans-serif;font-size:17px;line-height:1.6}
+h1,h2,h3{font-family:'Fredoka',sans-serif;line-height:1.2;margin:0 0 .5em}
+a{color:var(--violet);font-weight:700}
+.wrap{max-width:1080px;margin:0 auto;padding:0 16px}
+code,.mono{font-family:'JetBrains Mono',monospace}
+
+/* NAV */
+nav{position:sticky;top:0;z-index:50;background:rgba(251,248,243,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.nav-in{display:flex;align-items:center;gap:12px;padding:10px 16px;max-width:1080px;margin:0 auto;overflow-x:auto}
+.brand{font-family:'Fredoka',sans-serif;font-weight:700;white-space:nowrap;color:var(--violet)}
+.steps{display:flex;gap:6px}
+.steps a{text-decoration:none;font-size:14px;padding:6px 11px;border-radius:999px;background:#fff;border:1px solid var(--line);color:var(--ink);white-space:nowrap}
+.steps a.done{background:var(--green-soft);border-color:var(--green);color:var(--green)}
+.progress{height:5px;background:var(--line)}
+.progress div{height:100%;width:0;background:linear-gradient(90deg,var(--violet),var(--orange));transition:width .5s}
+
+/* HERO */
+.hero{padding:48px 0 24px;text-align:center}
+.hero h1{font-size:clamp(34px,6vw,58px);color:var(--ink)}
+.hero h1 span{color:var(--violet)}
+.hero .subtitle{font-family:'Fredoka',sans-serif;font-size:clamp(20px,3vw,26px);font-weight:600;color:var(--orange);margin:-6px auto 14px}
+.hero p{max-width:680px;margin:0 auto 18px;color:var(--muted);font-size:19px}
+.pill{display:inline-block;background:var(--yellow-soft);border:1px solid var(--yellow);border-radius:999px;padding:4px 14px;font-weight:800;font-size:14px;margin-bottom:14px}
+
+/* SECTIONS */
+section.mission{padding:34px 0}
+.mhead{display:flex;align-items:center;gap:14px;margin-bottom:14px}
+.mnum{flex:none;width:54px;height:54px;border-radius:16px;display:grid;place-items:center;font-family:'Fredoka',sans-serif;font-size:26px;font-weight:700;color:#fff}
+.mhead small{font-family:'Nunito',system-ui,sans-serif !important}
+.mhead h2{font-size:clamp(24px,3.5vw,32px);margin:0}
+.mhead small{display:block;color:var(--muted);font-family:'Nunito',sans-serif;font-size:15px;font-weight:600}
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px;margin-bottom:18px;border:1px solid #F1ECE3}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:780px){.grid2,.grid3{grid-template-columns:1fr}}
+.tip{border-left:5px solid var(--orange);background:var(--orange-soft);padding:12px 16px;border-radius:0 12px 12px 0;margin:12px 0}
+.tip.v{border-color:var(--violet);background:var(--violet-soft)}
+.tip.g{border-color:var(--green);background:var(--green-soft)}
+.book{border:1.5px solid var(--blue);background:var(--blue-soft);border-radius:14px;padding:12px 16px;margin:12px 0;font-size:16px}
+.book b.t{color:var(--blue)}
+.muted{color:var(--muted)}
+
+button,.btn{font-family:'Nunito',sans-serif;font-weight:800;font-size:15px;border:0;border-radius:12px;padding:10px 16px;cursor:pointer;background:var(--violet);color:#fff;transition:transform .1s,box-shadow .2s;text-decoration:none;display:inline-block}
+button:hover,.btn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(110,75,168,.3)}
+button.ghost{background:#fff;color:var(--ink);border:1.5px solid var(--line)}
+button.ghost.on{background:var(--violet);color:#fff;border-color:var(--violet)}
+button.orange{background:var(--orange)}
+button.green{background:var(--green)}
+input[type=text],textarea,input[type=number]{font-family:'Nunito',sans-serif;font-size:17px;width:100%;padding:11px 14px;border-radius:12px;border:1.5px solid var(--line);background:#FFFDF9;color:var(--ink)}
+input:focus,textarea:focus{outline:none;border-color:var(--violet);box-shadow:0 0 0 3px var(--violet-soft)}
+textarea{min-height:80px;resize:vertical}
+label.q{display:block;font-weight:800;margin:14px 0 6px}
+
+.done-btn{margin-top:8px;background:#fff;color:var(--green);border:2px dashed var(--green)}
+.done-btn.ok{background:var(--green);color:#fff;border-style:solid}
+
+
+/* MISIÓN 1 */
+.step-tag{display:inline-block;background:var(--blue);color:#fff;font-weight:800;font-size:13px;letter-spacing:.06em;text-transform:uppercase;padding:3px 10px;border-radius:6px;margin-bottom:8px}
+.mini-game{margin-top:18px;padding:16px;border-radius:14px;background:var(--yellow-soft);border:1.5px solid var(--yellow)}
+.secret{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 12px}
+.secret span{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:700;background:#fff;border:2px solid var(--ink);border-radius:10px;padding:6px 12px}
+.row-input{display:flex;gap:8px;flex-wrap:wrap}
+.row-input input{flex:1 1 180px;width:auto}
+#numline{width:100%;min-width:640px;height:auto}
+.nl-letter{cursor:pointer}
+.nl-letter circle{fill:#fff;stroke:var(--blue);stroke-width:2;transition:.15s}
+.nl-letter text{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:700;fill:var(--ink)}
+.nl-letter text.code{font-size:11px;font-weight:500;fill:var(--muted)}
+.nl-letter:hover circle,.nl-letter:focus circle{fill:var(--blue-soft)}
+.nl-letter:focus{outline:none}
+.nl-letter.on circle{fill:var(--orange);stroke:var(--orange)}
+.nl-letter.on text{fill:#fff}
+.nl-letter.on text.code{fill:var(--orange);font-weight:800}
+.ohgrid{display:inline-flex;flex-direction:column;gap:3px;margin:12px 0 4px;padding:10px;background:#FFFDF9;border:1.5px dashed var(--line);border-radius:12px}
+.ohrow{display:grid;grid-template-columns:28px repeat(27,18px);gap:3px;align-items:center}
+.ohrow span{text-align:center;font-family:'JetBrains Mono',monospace;font-size:12px}
+.ohrow .lab{font-weight:800;font-size:16px;color:var(--pink)}
+.ohrow.head span{color:var(--muted);font-weight:700}
+.ohrow .cell{height:18px;border-radius:50%;background:#E6E0D4}
+@media(max-width:600px){.card{padding:16px 14px}.ohgrid{padding:6px}.ohrow{grid-template-columns:18px repeat(27,10px);gap:1px}.ohrow span{font-size:9px}.ohrow .lab{font-size:13px}.ohrow .cell{height:10px}}
+.ohrow .cell.lit{background:var(--yellow);box-shadow:0 0 0 2px var(--orange),0 0 10px var(--yellow)}
+
+
+/* MISIÓN 3 · RNN */
+table.factory{width:auto;min-width:320px;margin-top:10px}
+table.factory td.mono{font-family:'JetBrains Mono',monospace;letter-spacing:1px}
+table.factory td.ans{font-family:'JetBrains Mono',monospace;font-weight:800;color:var(--pink);text-align:center;font-size:18px}
+.unroll{display:flex;align-items:center;gap:6px;padding:10px 4px;min-width:600px}
+.ustep{display:flex;flex-direction:column;align-items:center;gap:4px;opacity:.35;transition:opacity .3s}
+.ustep.on{opacity:1}
+.uout{font-size:14px;min-height:22px;color:var(--pink)}
+.uarrow{color:var(--muted);font-weight:800;line-height:1}
+.ucore{width:118px;padding:10px 6px;border-radius:14px;background:var(--violet-soft);border:2px solid var(--violet);text-align:center;font-family:'Fredoka',sans-serif;font-weight:700;color:var(--violet)}
+.ucore small{display:block;font-family:'Nunito',sans-serif;font-weight:700;font-size:12px;color:var(--ink);margin-top:4px}
+.ustep.cur .ucore{background:var(--violet);color:#fff;box-shadow:0 0 0 4px var(--violet-soft)}
+.ustep.cur .ucore small{color:#fff}
+.uin{width:40px;height:40px;display:grid;place-items:center;border-radius:10px;background:var(--yellow);font-family:'JetBrains Mono',monospace;font-weight:800;font-size:20px}
+.umem{font-size:11px;font-weight:800;text-align:center;color:var(--muted);line-height:1.2;opacity:.35}
+.umem.on{opacity:1;color:var(--violet)}
+details.corpus{margin:12px 0;padding:10px 14px;font-size:16px}
+details.corpus summary{font-family:'Nunito',sans-serif;font-size:16px;font-weight:800}
+#lossChart{width:100%;height:auto;background:#FFFDF9;border:1px solid var(--line);border-radius:12px}
+.samples{display:flex;flex-direction:column;gap:6px;max-height:330px;overflow-y:auto}
+.sample{display:grid;grid-template-columns:110px 1fr;gap:10px;align-items:baseline;padding:8px 12px;border-radius:10px;background:#FFFDF9;border:1px solid var(--line);animation:pop .3s}
+.sample .it{font-weight:800;font-size:13px;color:var(--pink)}
+.sample .txt{font-family:'JetBrains Mono',monospace;font-size:15px;word-break:break-word;min-width:0}
+.gen-out{font-family:'JetBrains Mono',monospace;font-size:16px;background:var(--green-soft);border-radius:12px;padding:10px 14px;min-height:20px;word-break:break-word}
+.gen-out:empty{display:none}
+.peek{display:flex;gap:8px;margin:12px 0;min-height:60px}
+.pcol{display:flex;flex-direction:column;align-items:center;gap:6px;background:#FFFDF9;border:1px solid var(--line);border-radius:12px;padding:8px 6px;min-width:74px}
+.pin{font-family:'JetBrains Mono',monospace;font-weight:800;font-size:20px;background:var(--yellow);border-radius:8px;width:34px;text-align:center}
+.pmem{display:flex;gap:1px;height:46px}
+.pmem i{position:relative;width:3px;height:46px;background:#EFEAE0}
+.pmem u{position:absolute;left:0;width:3px;text-decoration:none;display:block}
+.ptop{font-family:'JetBrains Mono',monospace;font-size:12px;text-align:center}
+.ptop div:first-child{color:var(--pink);font-size:13px}
+.longsent{font-size:18px;background:var(--yellow-soft);border-radius:12px;padding:12px 16px}
+.q-mark{display:inline-block;background:var(--pink);color:#fff;border-radius:6px;padding:0 6px;font-weight:800}
+.timeline{display:grid;gap:0;border-left:3px solid var(--pink-soft);margin:16px 0 8px 8px}
+.timeline div{display:grid;grid-template-columns:62px 1fr;gap:10px;padding:6px 0 6px 14px;position:relative;font-size:15px}
+.timeline div::before{content:"";position:absolute;left:-8px;top:12px;width:13px;height:13px;border-radius:50%;background:var(--pink)}
+.timeline b{font-family:'Fredoka',sans-serif;color:var(--pink);font-size:17px}
+@media(max-width:600px){.sample{grid-template-columns:1fr;gap:2px}}
+
+
+.lowp{background:var(--pink);color:#fff;border-radius:3px;padding:0 1px}
+.midp{background:var(--orange-soft);box-shadow:inset 0 -2px 0 var(--orange);border-radius:3px}
+
+/* PREGUNTAS DE RESPUESTA MÚLTIPLE */
+.mcq{margin:18px 0 6px;padding:16px;border:1.5px solid var(--line);border-radius:14px;background:#FFFDF9}
+.mq{font-weight:800;margin:0 0 10px}
+.mopts{display:grid;gap:8px}
+.mopt{display:flex;gap:10px;align-items:flex-start;text-align:left;width:100%;background:#fff;color:var(--ink);border:1.5px solid var(--line);font-weight:600;font-size:16px;padding:10px 12px;line-height:1.45}
+.mopt:hover:not(:disabled){border-color:var(--violet);background:var(--violet-soft);transform:none;box-shadow:none}
+.mopt:focus-visible{outline:3px solid var(--violet)}
+.mopt:disabled{cursor:default}
+.mopt .ml{flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:var(--violet-soft);color:var(--violet);font-weight:800;font-size:14px}
+.mcq.answered .mopt:not(.right):not(.wrong){opacity:.55}
+.mopt.right{border-color:var(--green);background:var(--green-soft)}
+.mopt.right .ml{background:var(--green);color:#fff}
+.mopt.wrong{border-color:var(--pink);background:var(--pink-soft)}
+.mopt.wrong .ml{background:var(--pink);color:#fff}
+.mexp{margin-top:10px;padding:10px 14px;border-radius:10px;font-size:15px}
+.mexp.ok{background:var(--green-soft)}
+.mexp.ko{background:var(--pink-soft)}
+.pm .mcq{background:#fff}
+.score{margin-left:auto;white-space:nowrap;font-weight:800;font-size:14px;background:var(--yellow-soft);border:1px solid var(--yellow);border-radius:999px;padding:6px 12px}
+footer .credit{font-size:16px;color:var(--ink);margin:0 0 8px}
+
+.vthumb{position:relative;display:block;width:100%;height:100%;background:#000}
+.vthumb img{width:100%;height:100%;object-fit:cover;display:block;opacity:.85}
+.vplay{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:84px;height:58px;border-radius:16px;background:#E62117;color:#fff;font-size:30px;display:grid;place-items:center}
+.vlabel{position:absolute;left:0;right:0;bottom:14px;text-align:center;color:#fff;font-weight:800;text-shadow:0 1px 4px #000}
+.vthumb:hover .vplay{transform:translate(-50%,-50%) scale(1.08)}
+/* TIMELINE */
+.gen{border-radius:16px;padding:18px;border:2px solid transparent;cursor:pointer;transition:.2s;background:#fff}
+.gen:hover{transform:translateY(-2px)}
+.gen.on{border-color:var(--violet);background:var(--violet-soft)}
+.gen .ico{font-size:34px}
+.gen h3{font-size:20px;margin:6px 0}
+.gen p{margin:0;font-size:15px;color:var(--muted)}
+
+/* TOKENS */
+.chips{display:flex;flex-wrap:wrap;gap:4px;min-height:52px;padding:14px;background:#FFFDF9;border:1.5px dashed var(--line);border-radius:14px;font-family:'JetBrains Mono',monospace;font-size:18px}
+.chip{padding:4px 7px;border-radius:7px;white-space:pre;display:inline-flex;flex-direction:column;align-items:center;animation:pop .25s ease}
+.chip small{font-size:11px;opacity:.75;margin-top:2px}
+.chip .sp{color:#B3A99A}
+.chip.unk{background:#FFD6D6 !important;color:#B3261E;font-weight:700}
+@keyframes pop{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
+.stats{display:flex;gap:14px;flex-wrap:wrap;margin:14px 0}
+.stat{background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px 18px;min-width:120px}
+.stat b{display:block;font-family:'Fredoka',sans-serif;font-size:32px;line-height:1;color:var(--violet)}
+.stat span{font-size:13px;color:var(--muted);font-weight:700}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.examples{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.examples button{font-size:13px;padding:6px 10px}
+
+/* UNICODE */
+.uni{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.ucell{background:var(--blue-soft);border-radius:12px;padding:8px 10px;text-align:center;min-width:58px;animation:pop .25s}
+.ucell b{display:block;font-size:24px;font-family:'Fredoka'}
+.ucell span{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--blue)}
+
+/* PREDICTOR */
+.bars{display:flex;align-items:flex-end;gap:3px;height:200px;padding:10px 6px 0;border-bottom:2px solid var(--line);overflow-x:auto}
+.bar{flex:1;min-width:20px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%}
+.bar i{display:block;width:100%;background:var(--violet-soft);border-radius:6px 6px 0 0;transition:height .35s}
+.bar.top i{background:linear-gradient(180deg,var(--orange),var(--pink))}
+.bar span{font-family:'JetBrains Mono',monospace;font-size:13px;margin-top:4px}
+.bar.top span{color:var(--pink);font-weight:800}
+.neurons{display:flex;gap:4px;flex-wrap:wrap;margin:6px 0 4px;justify-content:center}
+.big-input{font-size:30px !important;font-family:'JetBrains Mono' !important;letter-spacing:2px;text-align:center}
+
+/* TABLE */
+table{width:100%;border-collapse:collapse;font-size:15px}
+th,td{padding:8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}
+th{background:var(--yellow-soft);font-weight:800}
+td input{padding:6px 8px;font-size:15px}
+.tscroll{overflow-x:auto}
+
+/* MAP */
+#map{width:100%;height:auto;background:radial-gradient(circle at 50% 40%,#fff,#FAF6EE);border-radius:16px;border:1px solid var(--line);touch-action:manipulation}
+#map text{font-family:'Nunito',system-ui,sans-serif;font-size:15px;font-weight:700;cursor:pointer;user-select:none}
+#map circle{cursor:pointer;transition:r .2s}
+.legend{display:flex;flex-wrap:wrap;gap:10px;font-size:14px;margin:8px 0}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.legend i{width:12px;height:12px;border-radius:50%;display:inline-block}
+.nlist{list-style:none;padding:0;margin:0;font-size:15px}
+.nlist li{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--line)}
+.nlist li b{color:var(--pink)}
+input[type=range]{width:100%;accent-color:var(--violet)}
+
+/* INTRUSO / QUIZ */
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:12px 0}
+.opt{background:#fff;color:var(--ink);border:2px solid var(--line);font-size:17px;padding:14px}
+.opt.right{background:var(--green-soft);border-color:var(--green);color:var(--green)}
+.opt.wrong{background:var(--pink-soft);border-color:var(--pink);color:var(--pink)}
+.feedback{min-height:28px;font-weight:700}
+.qcard{border:1.5px solid var(--line);border-radius:14px;padding:16px;margin-bottom:12px;background:#FFFDF9}
+.qcard p{font-weight:800;margin:0 0 8px}
+.qcard label{display:block;padding:7px 10px;border-radius:10px;cursor:pointer}
+.qcard label:hover{background:var(--violet-soft)}
+.qcard .exp{display:none;margin-top:8px;font-size:15px;padding:8px 12px;border-radius:10px}
+.qcard.checked .exp{display:block}
+.qcard.ok .exp{background:var(--green-soft)}
+.qcard.ko .exp{background:var(--pink-soft)}
+
+/* PROJECTOR MISSIONS */
+.pm{display:flex;gap:14px;align-items:flex-start}
+.pm .n{flex:none;width:36px;height:36px;border-radius:50%;background:var(--orange);color:#fff;display:grid;place-items:center;font-family:'Fredoka',sans-serif;font-weight:700}
+.pm h3{font-size:19px;margin:4px 0}
+
+/* VIDEO */
+.video{aspect-ratio:16/9;border-radius:16px;overflow:hidden;background:linear-gradient(135deg,var(--violet-soft),var(--orange-soft));display:grid;place-items:center;text-align:center;padding:20px}
+.video iframe{width:100%;height:100%;border:0}
+
+/* TEACHER */
+details{background:#fff;border:1.5px solid var(--line);border-radius:var(--radius);padding:16px 20px;margin:18px 0}
+summary{font-family:'Fredoka',sans-serif;font-size:20px;font-weight:600;cursor:pointer}
+details li{margin-bottom:6px}
+
+footer{text-align:center;padding:30px 16px 60px;color:var(--muted);font-size:14px}
+.badge{display:none;text-align:center;font-size:20px;padding:24px;background:linear-gradient(135deg,var(--yellow-soft),var(--green-soft));border-radius:var(--radius);border:2px solid var(--yellow)}
+.badge.show{display:block;animation:pop .5s}
+.confetti{position:fixed;top:-30px;font-size:26px;pointer-events:none;animation:fall 2.6s linear forwards;z-index:99}
+@keyframes fall{to{transform:translateY(110vh) rotate(540deg)}}
+
+@media print{nav,.done-btn,button{display:none !important}.card{box-shadow:none;break-inside:avoid}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-in">
+    <div class="brand">🔢 Del texto al número</div>
+    <div class="steps" id="steps"></div>
+    <div class="score">⭐ <span id="scoreNum">0</span></div>
+  </div>
+  <div class="progress"><div id="pbar"></div></div>
+</nav>
+
+<header class="hero wrap">
+  <div class="pill">IA para a Sociedade · 4.º ESO · Actividad 19</div>
+  <h1>Del <span>texto</span> al número</h1>
+  <p class="subtitle">¿Cómo lee una IA?</p>
+  <p>En esta actividad vais a descubrir cómo un modelo de lenguaje convierte las palabras en números, cómo las trocea en <b>tokens</b> y cómo las coloca en un <b>mapa de significados</b>.</p>
+  <div class="card" style="max-width:760px;margin:24px auto 0;text-align:left">
+    <h3>🎬 Antes de empezar: el vídeo</h3>
+    <div class="video" id="video"></div>
+  </div>
+</header>
+
+<main class="wrap">
+
+<!-- ============ MISIÓN 1 ============ -->
+<section class="mission" id="m1">
+  <div class="mhead"><div class="mnum" style="background:var(--blue)">1</div>
+    <h2>Las neuronas solo entienden números<small>Tres pasos para convertir letras en números… y descubrir cuál prefiere la red</small></h2></div>
+
+  <div class="card">
+    <p style="margin-top:0">¿Recuerdas la red neuronal que distinguía <b>perros y gatos</b>? No veía fotos: veía <b>píxeles</b>, números del 0 al 255. Con el texto pasa lo mismo. Una red neuronal no sabe leer: en sus neuronas de entrada solo pueden entrar <b>números</b>. Así que antes de nada hay que convertir cada letra en números. Pero… ¿cómo?</p>
+    <div class="book">📘 <b class="t">Conecta con el libro (3.3.4 · Las Redes Neuronales Artificiales):</b> cada neurona multiplica sus entradas <b>X</b> por unos <b>pesos W</b>, suma el <b>sesgo</b> y aplica la <b>función de activación</b>. Multiplicar y sumar solo se puede hacer con números.</div>
+  </div>
+
+  <!-- PASO 1 -->
+  <div class="card">
+    <div class="step-tag">Paso 1</div>
+    <h3>Cada letra, un número</h3>
+    <p>Los ordenadores ya tienen una lista oficial que da un número a cada letra: la tabla <a href="https://symbl.cc/es/unicode-table/" target="_blank" rel="noopener">Unicode</a>. Escribe tu nombre y mira cómo lo ve el ordenador.</p>
+    <label class="q" for="uniIn" style="margin-top:0">✍️ Tu nombre</label>
+    <input type="text" id="uniIn" value="Lucía" maxlength="30">
+    <div class="uni" id="uniOut"></div>
+
+    <div class="mini-game">
+      <h3 style="font-size:19px">🔐 Reto: descifra el mensaje secreto</h3>
+      <p style="margin:0 0 8px">Usa la caja de arriba como "máquina traductora": prueba letras hasta encontrar las que tienen estos números.</p>
+      <div class="secret" id="secretCodes"></div>
+      <div class="row-input">
+        <input type="text" id="secretIn" placeholder="Escribe aquí el mensaje">
+        <button id="secretCheck">Comprobar</button>
+        <button class="ghost" id="secretNext">Otro mensaje</button>
+      </div>
+      <p class="feedback" id="secretFb"></p>
+    </div>
+  </div>
+
+  <!-- PASO 2 -->
+  <div class="card">
+    <div class="step-tag">Paso 2</div>
+    <h3>¿Números parecidos = letras parecidas?</h3>
+    <p>La red hace cuentas con estos números. Para ella, dos números cercanos significan dos cosas parecidas. <b>Pulsa dos letras</b> de la recta y mira qué "piensa" la red.</p>
+    <div class="tscroll"><svg id="numline" viewBox="0 0 1000 130" role="img" aria-label="Recta numérica con las letras y sus códigos"></svg></div>
+    <p class="feedback" id="lineFb" style="text-align:center"></p>
+    <div class="tip">🤔 <b>¡Problema!</b> Que la "a" sea el 97 y la "b" el 98 es solo el orden del abecedario. No significa que se parezcan. Y la <b>ñ</b> (241) queda lejísimos, como si fuera rarísima. Si le damos estos números, la red sacará conclusiones falsas.</div>
+  </div>
+
+  <!-- PASO 3 -->
+  <div class="card">
+    <div class="step-tag">Paso 3</div>
+    <h3>Una bombilla para cada letra</h3>
+    <p>La solución: darle a la red <b>una neurona de entrada por cada letra</b>, como un panel de 27 bombillas (26 letras + la ñ). Para cada letra se enciende <b>solo su bombilla</b> (vale 1) y las demás quedan apagadas (valen 0). Así todas las letras están igual de lejos unas de otras. Esto se llama <b>codificación one-hot</b> ("una encendida").</p>
+    <label class="q" for="ohIn" style="margin-top:0">✍️ Escribe una palabra (sin tildes)</label>
+    <input type="text" id="ohIn" value="gato" maxlength="10">
+    <div class="tscroll"><div class="ohgrid" id="ohGrid"></div></div>
+    <p id="ohMsg" class="muted" style="font-size:15px"></p>
+    <div class="tip v">🖼️ ¿Te has fijado? <b>Tu palabra se ha convertido en una imagen</b> de cuadritos encendidos y apagados, como los píxeles de la foto del perro y el gato. ¡Esto sí lo puede leer una red neuronal!</div>
+
+    <div class="mini-game">
+      <h3 style="font-size:19px">💡 Reto: ¿qué palabra esconden las bombillas?</h3>
+      <div class="tscroll"><div class="ohgrid" id="ohSecret"></div></div>
+      <div class="row-input">
+        <input type="text" id="ohGuess" placeholder="Escribe la palabra">
+        <button id="ohCheck">Comprobar</button>
+        <button class="ghost" id="ohNext">Otra palabra</button>
+      </div>
+      <p class="feedback" id="ohFb"></p>
+    </div>
+
+    <div class="tip g">🚀 <b>Y todavía falta una tercera forma.</b> Con las bombillas, ninguna letra o palabra se parece a otra. En la <a href="#m5">misión 5</a> verás los <b>embeddings</b>: números que la red aprende sola, donde las palabras que se parecen <b>sí</b> quedan cerca.</div>
+
+    <div class="mcq" data-q="r1"></div>
+    <div class="mcq" data-q="r1b"></div>
+    <div class="mcq" data-q="r1c"></div>
+    <button class="done-btn" data-m="1">✅ Misión 1 completada</button>
+  </div>
+</section>
+
+<!-- ============ MISIÓN 2 ============ -->
+<section class="mission" id="m2">
+  <div class="mhead"><div class="mnum" style="background:var(--violet)">2</div>
+    <h2>Las tres generaciones<small>Letras, palabras… ¡o trocitos!</small></h2></div>
+  <div class="grid3" id="gens">
+    <div class="gen" data-mode="char"><div class="ico">🔤</div><h3>1ª · Letra a letra</h3><p>Una <b>red recurrente</b> aprende a adivinar la siguiente letra. Es fácil de manejar, pero cuesta muchísimo que entienda el <b>sentido</b> de las palabras. ¡La entrenarás en la misión 3!</p></div>
+    <div class="gen" data-mode="word"><div class="ico">📖</div><h3>2ª · Palabra a palabra</h3><p>Cada palabra del diccionario es un token. Entiende mejor el contexto, pero las palabras raras o inventadas se quedan <b>sin token</b>.</p></div>
+    <div class="gen on" data-mode="sub"><div class="ico">🧩</div><h3>3ª · Trocitos (tokens)</h3><p>El término medio: fragmentos que a veces son palabras enteras y a veces raíces, prefijos o terminaciones.</p></div>
+  </div>
+
+  <div class="card" style="margin-top:18px">
+    <h3>🧪 Laboratorio de tokens</h3>
+    <p class="muted" style="margin-top:0">Escribe una frase y cambia de generación para ver cómo la trocea cada una.</p>
+    <input type="text" id="tokIn" value="Necesito tomarme un café">
+    <div class="examples" id="examples"></div>
+    <div class="tabs" id="tabs">
+      <button class="ghost" data-mode="char">🔤 Letras</button>
+      <button class="ghost" data-mode="word">📖 Palabras</button>
+      <button class="ghost on" data-mode="sub">🧩 Tokens</button>
+      <span style="flex:1"></span>
+      <button class="ghost" id="idsBtn">🔢 Ver números (IDs)</button>
+    </div>
+    <div class="stats">
+      <div class="stat"><b id="sTok">0</b><span>TOKENS</span></div>
+      <div class="stat"><b id="sChar" style="color:var(--orange)">0</b><span>CARACTERES</span></div>
+      <div class="stat"><b id="sWord" style="color:var(--green)">0</b><span>PALABRAS</span></div>
+    </div>
+    <div class="chips" id="chips"></div>
+    <p id="tokMsg" class="tip" style="display:none"></p>
+    <p class="muted" style="font-size:14px">⚠️ Este laboratorio es una <b>simulación</b> con un vocabulario pequeño para entender la idea. El tokenizador real de ChatGPT tiene unos 200.000 tokens y puede trocear de otra forma. El punto gris (·) es un espacio: ¡va pegado al token siguiente!</p>
+
+    <div class="mcq" data-q="r2a"></div>
+    <div class="mcq" data-q="r2b"></div>
+    <div class="mcq" data-q="r2c"></div>
+    <button class="done-btn" data-m="2">✅ Misión 2 completada</button>
+  </div>
+</section>
+
+<!-- ============ MISIÓN 3 ============ -->
+<section class="mission" id="m3">
+  <div class="mhead"><div class="mnum" style="background:var(--pink)">3</div>
+    <h2>Entrena una red recurrente<small>Así aprendían los modelos de la 1ª generación, letra a letra</small></h2></div>
+
+  <div class="card">
+    <p style="margin-top:0">Los primeros modelos de lenguaje con redes neuronales leían <b>letra a letra</b> e intentaban adivinar <b>la letra siguiente</b>. Para eso usaban un tipo especial de red: la <b>red neuronal recurrente</b> (RNN, por sus siglas en inglés). En esta misión vas a ver de dónde sacaba sus ejemplos, cómo "recordaba" lo que ya había leído y, sobre todo, vas a <b>entrenar una de verdad</b>.</p>
+  </div>
+
+  <!-- PASO 1 -->
+  <div class="card">
+    <div class="step-tag" style="background:var(--pink)">Paso 1</div>
+    <h3>La fábrica de ejemplos</h3>
+    <p>Para entrenar una red hacen falta ejemplos con su <b>respuesta correcta</b> (la etiqueta). En la red de perros y gatos, alguien tenía que etiquetar cada foto. Aquí no hace falta: <b>el propio texto trae las respuestas</b>. Cada letra es la respuesta correcta para todo lo que va antes.</p>
+    <label class="q" for="facIn" style="margin-top:0">✍️ Escribe una frase y mira cuántos ejemplos salen de ella</label>
+    <input type="text" id="facIn" value="el gato come" maxlength="40">
+    <div class="tscroll"><table class="factory" id="facTable"></table></div>
+    <p id="facMsg" style="font-weight:800"></p>
+    <div class="book">📘 <b class="t">Conecta con el libro (3.3.1 · Aprendizaje supervisado):</b> la red aprende con pares de <b>entrada</b> y <b>salida correcta</b>, igual que en el aprendizaje supervisado. La diferencia es que nadie tiene que poner las etiquetas a mano. Por eso se pudo entrenar con millones de textos de internet. A esto se le llama <b>aprendizaje autosupervisado</b>.</div>
+  </div>
+
+  <!-- PASO 2 -->
+  <div class="card">
+    <div class="step-tag" style="background:var(--pink)">Paso 2</div>
+    <h3>Una red con memoria</h3>
+    <p>Para adivinar qué viene después de "el gat", no basta con mirar la última letra, la "t". La red necesita recordar las anteriores. Una red recurrente tiene un truco: después de leer cada letra, <b>se pasa a sí misma una nota</b> con lo que ha leído hasta ahora. Esa nota se llama <b>estado oculto</b> o memoria. Pulsa el botón para ver cómo lee la palabra.</p>
+    <div class="tscroll"><div class="unroll" id="unroll"></div></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+      <button id="unNext">Leer la siguiente letra ▶</button>
+      <button class="ghost" id="unReset">🔄 Empezar de nuevo</button>
+    </div>
+    <p class="feedback" id="unMsg" style="margin-top:10px"></p>
+    <div class="tip v">🔁 Se llama <b>recurrente</b> porque la misma red se usa una y otra vez, una vez por letra, y en cada vuelta recibe dos cosas: <b>la letra nueva</b> (con una bombilla encendida, como en la misión 1) y <b>su propia nota de memoria</b>.</div>
+  </div>
+
+  <!-- PASO 3 -->
+  <div class="card">
+    <div class="step-tag" style="background:var(--pink)">Paso 3</div>
+    <h3>¡Entrena tu red!</h3>
+    <p>Esta es una red recurrente <b>real</b>, con 64 neuronas de memoria, que va a aprender aquí mismo, en tu navegador. Empieza con los pesos al azar, así que al principio escribe cosas sin sentido. En cada paso de entrenamiento lee un trozo de 25 letras elegido al azar, comprueba cuánto se ha equivocado al adivinar cada letra y <b>ajusta un poco sus pesos</b> para equivocarse menos la próxima vez.</p>
+    <details class="corpus">
+      <summary>📚 Ver o cambiar los textos de entrenamiento</summary>
+      <p class="muted" style="font-size:15px;margin:8px 0">La red solo aprenderá lo que haya aquí. Puedes poner tus propios textos (mínimo 300 letras) y pulsar <b>Reiniciar</b>.</p>
+      <textarea id="corpusIn" style="min-height:140px;font-size:15px"></textarea>
+    </details>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin:14px 0">
+      <button class="green" id="trainBtn">▶ Entrenar</button>
+      <button class="ghost" id="resetBtn">🔄 Reiniciar la red</button>
+    </div>
+    <div class="stats">
+      <div class="stat"><b id="itNum">0</b><span>PASOS DE ENTRENAMIENTO</span></div>
+      <div class="stat"><b id="lossNum" style="color:var(--pink)">–</b><span>ERROR</span></div>
+      <div class="stat"><b id="letNum" style="color:var(--green)">0</b><span>LETRAS LEÍDAS</span></div>
+      <div class="stat"><b id="paramNum" style="color:var(--blue)">–</b><span>PESOS QUE AJUSTA</span></div>
+    </div>
+    <canvas id="lossChart" width="900" height="200" aria-label="Gráfica del error durante el entrenamiento"></canvas>
+    <p class="muted" style="font-size:14px;margin-top:4px">El <b>error</b> mide cuánto se equivoca la red al adivinar la letra siguiente. Cuanto más bajo, mejor.</p>
+    <h3 style="font-size:18px;margin-top:16px">📝 Lo que escribe tu red durante el entrenamiento</h3>
+    <p class="muted" style="font-size:14px;margin-top:-6px">Siempre empieza por "el" y con creatividad 0,5, para poder comparar.</p>
+    <div class="samples" id="samples"></div>
+    <label class="q" for="tempIn">🎲 Creatividad (temperatura): <span id="tempVal"></span></label>
+    <input type="range" id="tempIn" min="0.2" max="1.5" step="0.1" value="0.5">
+    <p class="muted" style="font-size:14px;margin-top:2px">La red no elige siempre la letra más probable: la <b>sortea</b> según sus probabilidades. Con poca creatividad elige casi siempre la favorita; con mucha, se arriesga con letras raras.</p>
+    <label class="q" for="genSeed">✨ Cuando esté entrenada, pídele que continúe un texto</label>
+    <div class="row-input">
+      <input type="text" id="genSeed" value="el niño">
+      <button class="orange" id="genBtn">Continuar texto</button>
+    </div>
+    <p class="gen-out" id="genOut"></p>
+    <p class="muted" id="genLegend" style="font-size:14px" hidden><span class="midp">letra dudosa</span> (la red le daba menos del 40 %) · <span class="lowp">letra muy improbable</span> (menos del 10 %). Fíjate en lo que pasa justo <b>después</b> de una letra rosa.</p>
+    <div class="tip">🤔 <b>¿Por qué a veces escribe palabras inventadas?</b>
+      <ul style="margin:6px 0 0;padding-left:20px">
+        <li><b>El azar:</b> al sortear las letras, a veces sale una poco probable.</li>
+        <li><b>Los errores en cadena:</b> escribe letra a letra, así que después de una letra rara se encuentra con algo que nunca ha visto y se pierde.</li>
+        <li><b>Pocos datos y una red pequeña:</b> los textos de ejemplo tienen unas 1.900 letras y tu red ajusta unos 8.000 pesos. ChatGPT ajusta <b>miles de millones</b> de pesos y se ha entrenado con <b>billones</b> de tokens.</li>
+        <li><b>Memorizar no es aprender:</b> si el error baja muchísimo (por debajo de 0,2), la red se ha aprendido los textos casi de memoria. Repite frases que ha visto, pero no sabe inventar frases nuevas con sentido.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- PASO 4 -->
+  <div class="card">
+    <div class="step-tag" style="background:var(--pink)">Paso 4</div>
+    <h3>Mira dentro de tu red</h3>
+    <p>Escribe algo y observa, letra a letra, cómo cambia la <b>memoria</b> de la red (las barras de colores, que son 16 de sus 64 neuronas de memoria) y qué <b>3 letras</b> cree que vienen después. Compara lo que ves antes y después de entrenar.</p>
+    <input type="text" id="peekIn" value="el gato" maxlength="14" aria-label="Texto para mirar dentro de la red">
+    <div class="tscroll"><div class="peek" id="peek"></div></div>
+    <p class="muted" style="font-size:14px">Barra hacia arriba (verde): la neurona se activa. Barra hacia abajo (rosa): se activa en sentido contrario. El símbolo ␣ es un espacio.</p>
+  </div>
+
+  <!-- PASO 5 -->
+  <div class="card">
+    <div class="step-tag" style="background:var(--pink)">Paso 5</div>
+    <h3>El problema de la memoria corta</h3>
+    <p>Las redes recurrentes tenían un gran problema: <b>su memoria se borraba poco a poco</b>. Cada letra nueva emborrona un poco la nota anterior. Mira esta frase:</p>
+    <p class="longsent">"<b>Las niñas</b> que viven en la casa del final de la calle de mi abuela están muy content<span class="q-mark">?</span>"</p>
+    <p>Para saber si la última letra es una <b>a</b> o una <b>o</b>, la red tendría que recordar "Las niñas", que está ¡más de 70 letras atrás! Una red recurrente sencilla ya lo habría olvidado. Por eso se inventaron las redes <b>LSTM</b>, con una memoria mejor, y después los <b>Transformers</b>, que pueden mirar a cualquier parte del texto a la vez. Esa es la tecnología de ChatGPT.</p>
+    <div class="timeline">
+      <div><b>1986</b><span>Se populariza la <b>retropropagación</b>: la forma de ajustar los pesos según el error.</span></div>
+      <div><b>1990</b><span>Jeffrey Elman presenta la <b>red recurrente simple</b> y la entrena para predecir lo siguiente en una secuencia.</span></div>
+      <div><b>1997</b><span>Hochreiter y Schmidhuber inventan la <b>LSTM</b>, una red recurrente con mejor memoria.</span></div>
+      <div><b>2003</b><span>Bengio y su equipo crean un modelo neuronal que predice la <b>palabra</b> siguiente.</span></div>
+      <div><b>2011</b><span>Sutskever, Martens y Hinton entrenan una red recurrente con Wikipedia que <b>escribe letra a letra</b>.</span></div>
+      <div><b>2015</b><span>Andrej Karpathy publica <i>char-rnn</i> y las redes que escriben letra a letra se hacen famosas.</span></div>
+      <div><b>2016</b><span>Se empiezan a usar los <b>tokens</b> de trocitos de palabra (BPE).</span></div>
+      <div><b>2017</b><span>Llega el <b>Transformer</b>: ya no lee letra a letra, sino que mira todo el texto a la vez.</span></div>
+      <div><b>2018</b><span>OpenAI presenta el primer <b>GPT</b>. En 2022 llega ChatGPT.</span></div>
+    </div>
+
+    <div class="mcq" data-q="r3a"></div>
+    <div class="mcq" data-q="r3b"></div>
+    <div class="mcq" data-q="r3d"></div>
+    <div class="mcq" data-q="r3e"></div>
+    <div class="mcq" data-q="r3c"></div>
+    <div class="mcq" data-q="r3f"></div>
+    <button class="done-btn" data-m="3">✅ Misión 3 completada</button>
+  </div>
+</section>
+
+<!-- ============ MISIÓN 4 ============ -->
+<section class="mission" id="m4">
+  <div class="mhead"><div class="mnum" style="background:var(--orange)">4</div>
+    <h2>Reto: el tokenizador de verdad<small>Predice, comprueba y compara</small></h2></div>
+  <div class="card">
+    <p>Abre el <a href="https://platform.openai.com/tokenizer" target="_blank" rel="noopener">tokenizador de OpenAI</a> en otra pestaña. Para cada frase: <b>1)</b> apuesta cuántos tokens tendrá, <b>2)</b> escríbela en el tokenizador, <b>3)</b> anota el resultado real.</p>
+    <div class="tscroll">
+    <table id="tokTable">
+      <thead><tr><th>Frase</th><th>Palabras</th><th>Mi apuesta</th><th>Tokens reales</th><th>Tokens por palabra</th></tr></thead>
+      <tbody></tbody>
+    </table>
+    </div>
+    <button class="ghost" id="addRow" style="margin-top:10px">➕ Añadir mi propia frase</button>
+
+    <div class="grid2" style="margin-top:20px">
+      <div class="tip g" style="margin:0">
+        <h3 style="font-size:19px">📏 La regla de oro</h3>
+        En inglés, <b>1.000 tokens ≈ 750 palabras</b>. Es decir, cada palabra gasta unos 1,3 tokens.<br><br>
+        <label for="wordsCalc"><b>¿Cuántas palabras tiene tu texto?</b></label>
+        <input type="number" id="wordsCalc" value="750" min="0">
+        <p id="calcOut" style="margin:8px 0 0"></p>
+      </div>
+      <div class="tip v" style="margin:0">
+        <h3 style="font-size:19px">🤔 ¿Y en español?</h3>
+        Mira la última columna de tu tabla. ¿Las frases en español gastan más o menos tokens por palabra que la frase en inglés? Los tokenizadores aprendieron sobre todo con textos en inglés, así que sus "trocitos" encajan mejor con ese idioma. ¿Y el gallego? 🤔
+      </div>
+    </div>
+    <div class="book">📘 <b class="t">Conecta con el libro (4.1 · Proyecto Nós):</b> las lenguas con menos textos en internet, como el gallego, salen perjudicadas en los grandes modelos. Por eso existen proyectos como <b>Nós</b>, con un traductor neuronal y herramientas de voz diseñados específicamente para el gallego.</div>
+    <div class="mcq" data-q="r4"></div>
+    <div class="mcq" data-q="r4b"></div>
+    <div class="mcq" data-q="r4c"></div>
+    <button class="done-btn" data-m="4">✅ Misión 4 completada</button>
+  </div>
+</section>
+
+<!-- ============ MISIÓN 5 ============ -->
+<section class="mission" id="m5">
+  <div class="mhead"><div class="mnum" style="background:var(--green)">5</div>
+    <h2>El mapa de las palabras<small>Embeddings: palabras convertidas en coordenadas</small></h2></div>
+  <div class="card">
+    <p>Un <b>embedding</b> convierte cada token en un <b>vector</b>: una lista de números que funciona como sus <b>coordenadas en un mapa</b>. Las palabras que aparecen en situaciones parecidas quedan cerca. Aquí tienes un mapa de juguete en 2 dimensiones. <b>Pulsa cualquier palabra</b> para ver sus vecinas.</p>
+    <div class="grid2" style="grid-template-columns:2fr 1fr">
+      <div>
+        <svg id="map" viewBox="0 0 1000 640" role="img" aria-label="Mapa de palabras"></svg>
+        <div class="legend" id="legend"></div>
+      </div>
+      <div>
+        <label class="q" for="mapSearch" style="margin-top:0">🔍 Buscar palabra</label>
+        <input type="text" id="mapSearch" placeholder="infantes, ratón, rey…">
+        <label class="q" for="kRange">👥 Vecinas: <span id="kVal">5</span></label>
+        <input type="range" id="kRange" min="1" max="10" value="5">
+        <h3 style="font-size:18px;margin-top:16px" id="selTitle">Elige una palabra</h3>
+        <ol class="nlist" id="nlist"></ol>
+        <p class="muted" style="font-size:13px">Distancia: cuanto más pequeña, más cerca.</p>
+      </div>
+    </div>
+    <div class="tip">🔍 <b>Pista:</b> busca <b>"infantes"</b> y <b>"ratón"</b>. ¿Por qué están en medio de dos grupos? En el mapa de verdad, cada palabra tiene <b>300 coordenadas</b>, no 2.</div>
+    <div class="book">📘 <b class="t">Conecta con el libro (3.3.2 · Aprendizaje no supervisado):</b> nadie le dijo al ordenador qué palabras son "animales" o "ejército". Las <b>agrupó por su parecido</b>, como los jugadores de baloncesto en bases, aleros, escoltas y pívots. Este mapa es un <b>espacio latente</b>, como el de los números escritos a mano, y también se puede operar con él. Igual que <i>hombre con gafas − hombre sin gafas + mujer sin gafas = mujer con gafas</i>, con palabras se cumple aproximadamente <b>rey − hombre + mujer ≈ reina</b>.</div>
+    <div class="mcq" data-q="r5"></div>
+    <div class="mcq" data-q="r5b"></div>
+  </div>
+
+  <div class="card">
+    <h3>🎯 Juego: ¿quién es el intruso?</h3>
+    <p class="muted" style="margin-top:0">Tres palabras son vecinas en el mapa. Una vive lejos. ¡Encuéntrala!</p>
+    <div class="opts" id="intOpts"></div>
+    <p class="feedback" id="intFb"></p>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+      <button id="intNext">Siguiente ➡️</button>
+      <span style="font-weight:800">Puntos: <span id="intScore">0</span> / <span id="intTotal">0</span></span>
+    </div>
+    <button class="done-btn" data-m="5" style="margin-top:16px">✅ Misión 5 completada</button>
+  </div>
+</section>
+
+<!-- ============ MISIÓN 6 ============ -->
+<section class="mission" id="m6">
+  <div class="mhead"><div class="mnum" style="background:#8E5CD9">6</div>
+    <h2>Exploradores del Embedding Projector<small>Ahora, el mapa de verdad: 20.000 palabras</small></h2></div>
+  <div class="card">
+    <p>Abre el <a href="https://projector.tensorflow.org/?config=https://ecraft2learn.github.io/ai/word-embeddings/es/projector.json" target="_blank" rel="noopener">Embedding Projector en español</a>. Usa el buscador de la derecha (<i>Search</i>), completa estas expediciones y responde a las preguntas:</p>
+
+    <div class="pm card" style="box-shadow:none;background:#FFFDF9">
+      <div class="n">A</div><div style="flex:1">
+      <h3>Singular y plural</h3>
+      <p>Busca <b>alumno</b> y mira la lista de vecinas de la derecha. ¿Aparece <b>alumnos</b>? ¿A qué distancia?</p>
+      <div class="mcq" data-q="pA"></div></div>
+    </div>
+    <div class="pm card" style="box-shadow:none;background:#FFFDF9">
+      <div class="n">B</div><div style="flex:1">
+      <h3>Una palabra, tres mundos</h3>
+      <p>Busca <b>infantes</b> y clasifica mentalmente sus vecinas en grupos: 👶 niños · 🪖 ejército · 👑 realeza.</p>
+      <div class="mcq" data-q="pB"></div></div>
+    </div>
+    <div class="pm card" style="box-shadow:none;background:#FFFDF9">
+      <div class="n">C</div><div style="flex:1">
+      <h3>Cazadores de dobles sentidos</h3>
+      <p>Busca <b>banco</b>, <b>planta</b>, <b>gato</b> o <b>estrella</b>. ¿Encuentras vecinas de cada uno de sus significados?</p>
+      <div class="mcq" data-q="pC"></div></div>
+    </div>
+    <div class="pm card" style="box-shadow:none;background:#FFFDF9">
+      <div class="n">D</div><div style="flex:1">
+      <h3>Tres formas de hacer la sombra</h3>
+      <p>Con una palabra seleccionada, cambia entre <b>PCA</b>, <b>T-SNE</b> y <b>UMAP</b> (abajo a la izquierda). ¿Cambia el dibujo? ¿Cambia la lista de vecinas de la derecha? ¿Por qué?</p>
+      <div class="mcq" data-q="pD"></div></div>
+    </div>
+    <div class="pm card" style="box-shadow:none;background:#FFFDF9">
+      <div class="n">E</div><div style="flex:1">
+      <h3>Dos reglas para medir</h3>
+      <p>Busca <b>infantes</b> y baja <b>neighbors</b> a 10. Compara la lista con <b>COSINE</b> y con <b>EUCLIDEAN</b>.</p>
+      <div class="mcq" data-q="pE"></div><div class="mcq" data-q="pE2"></div></div>
+    </div>
+    <button class="done-btn" data-m="6">✅ Misión 6 completada</button>
+  </div>
+</section>
+<div class="badge" id="badge">🏅 <b>¡Enhorabuena!</b><br>Has completado todas las misiones y has acertado <b id="badgeScore"></b> preguntas.<br>Ya sabes cómo una IA convierte palabras en números.</div>
+
+
+</main>
+
+<footer><p class="credit">Creado por <b>Susana Oubiña Falcón</b> y <b>Claude (Opus 5.5)</b>.<br>Material educativo para la materia de <b>IA para a Sociedade</b> · 4.º ESO</p><p>Las herramientas de las misiones 1, 2 y 5 son simulaciones educativas simplificadas. La red de la misión 3 es una red recurrente real que se entrena en tu navegador.</p></footer>
+
+<script>
+/* ===== CONFIGURACIÓN: pega aquí el enlace del vídeo (YouTube) ===== */
+const VIDEO_URL = "https://www.youtube.com/watch?v=Q68zFJOXZ08&t=10s";
+
+/* ---------- VIDEO ---------- */
+(function(){
+  const box = document.getElementById('video');
+  const m = VIDEO_URL.match(/(?:youtu\.be\/|v=|embed\/)([\w-]{11})/);
+  if (m) {
+    const t = (VIDEO_URL.match(/[?&]t=(\d+)/) || [])[1];
+    if (location.protocol === 'file:') {
+      // Abierto como archivo local: YouTube no recibe la dirección de la página y da el error 153.
+      box.style.padding = 0;
+      box.innerHTML = '<a class="vthumb" href="' + VIDEO_URL + '" target="_blank" rel="noopener" aria-label="Ver el vídeo en YouTube">' +
+        '<img src="https://img.youtube.com/vi/' + m[1] + '/hqdefault.jpg" alt="Miniatura del vídeo introductorio">' +
+        '<span class="vplay">▶</span><span class="vlabel">Ver el vídeo en YouTube</span></a>';
+    } else {
+      box.style.padding = 0;
+      box.innerHTML = '<iframe src="https://www.youtube-nocookie.com/embed/' + m[1] + (t ? '?start=' + t : '') + '" referrerpolicy="strict-origin-when-cross-origin" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen title="Vídeo introductorio"></iframe>';
+      box.insertAdjacentHTML('afterend', '<p style="margin:8px 0 0;font-size:14px;text-align:center">¿No se ve el vídeo? <a href="' + VIDEO_URL + '" target="_blank" rel="noopener">Ábrelo en YouTube</a></p>');
+    }
+  } else if (VIDEO_URL) {
+    box.innerHTML = '<a class="btn" href="' + VIDEO_URL + '" target="_blank" rel="noopener">▶️ Ver el vídeo</a>';
+  } else {
+    box.innerHTML = '<div><div style="font-size:54px">▶️</div><b>Aquí va el vídeo introductorio</b><p class="muted" style="margin:6px 0 0;font-size:15px">Docente: abre este archivo con un editor de texto y pega el enlace en <code>VIDEO_URL</code>.</p></div>';
+  }
+})();
+
+/* ---------- PROGRESO ---------- */
+const TOTAL = 6, done = new Set();
+const steps = document.getElementById('steps');
+for (let i = 1; i <= TOTAL; i++) {
+  const a = document.createElement('a'); a.href = '#m' + i; a.textContent = 'Misión ' + i; a.id = 'st' + i; steps.appendChild(a);
+}
+document.querySelectorAll('.done-btn').forEach(b => b.addEventListener('click', () => {
+  const m = b.dataset.m;
+  if (done.has(m)) { done.delete(m); b.classList.remove('ok'); b.textContent = '✅ Misión ' + m + ' completada'; }
+  else { done.add(m); b.classList.add('ok'); b.textContent = '🎉 ¡Misión ' + m + ' superada!'; }
+  document.getElementById('st' + m).classList.toggle('done', done.has(m));
+  document.getElementById('pbar').style.width = (done.size / TOTAL * 100) + '%';
+  const badge = document.getElementById('badge');
+  if (done.size === TOTAL) { if (!badge.classList.contains('show')) { badge.classList.add('show'); confetti(); } }
+  else badge.classList.remove('show');
+}));
+function confetti(){
+  const e = ['🎉','⭐','🧩','🔤','✨','🏅'];
+  for (let i = 0; i < 40; i++) {
+    const s = document.createElement('div'); s.className = 'confetti';
+    s.textContent = e[i % e.length]; s.style.left = Math.random() * 100 + 'vw';
+    s.style.animationDelay = Math.random() * .8 + 's';
+    document.body.appendChild(s); setTimeout(() => s.remove(), 3600);
+  }
+}
+
+/* ---------- MISIÓN 1: LETRAS A NÚMEROS ---------- */
+function esc(s){ return s.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+const uniIn = document.getElementById('uniIn'), uniOut = document.getElementById('uniOut');
+function renderUni(){
+  uniOut.innerHTML = '';
+  for (const ch of uniIn.value) {
+    const d = document.createElement('div'); d.className = 'ucell';
+    d.innerHTML = '<b>' + (ch === ' ' ? '␣' : esc(ch)) + '</b><span>' + ch.codePointAt(0) + '</span>';
+    uniOut.appendChild(d);
+  }
+}
+uniIn.addEventListener('input', renderUni); renderUni();
+
+// Reto 1: mensaje secreto
+const SECRETS = ['Hola', 'IA', 'café', 'ñu', 'Vigo', 'Robot'];
+let sIdx = 0;
+function showSecret(){
+  const w = SECRETS[sIdx];
+  document.getElementById('secretCodes').innerHTML = [...w].map(c => '<span>' + c.codePointAt(0) + '</span>').join('');
+  document.getElementById('secretIn').value = ''; document.getElementById('secretFb').textContent = '';
+}
+document.getElementById('secretCheck').onclick = () => {
+  const g = document.getElementById('secretIn').value.trim(), w = SECRETS[sIdx], fb = document.getElementById('secretFb');
+  if (g === w) fb.innerHTML = '✅ ¡Mensaje descifrado! Era <b>' + esc(w) + '</b>.';
+  else if (g.toLowerCase() === w.toLowerCase()) fb.innerHTML = '🧐 ¡Casi! Revisa las <b>mayúsculas</b>: para el ordenador "A" (65) y "a" (97) son números distintos.';
+  else fb.innerHTML = '❌ Todavía no. Escribe letras en la máquina traductora hasta que coincidan los números.';
+};
+document.getElementById('secretNext').onclick = () => { sIdx = (sIdx + 1) % SECRETS.length; showSecret(); };
+showSecret();
+
+// Paso 2: recta numérica
+const LINE = 'abcdefghijklmnopqrstuvwxyz'.split('').concat(['ñ']);
+const nl = document.getElementById('numline'), NSL = 'http://www.w3.org/2000/svg';
+const xOf = code => code === 241 ? 940 : 40 + (code - 97) * 30;
+let picked = [];
+(function drawLine(){
+  const mk = (tag, attrs, txt) => { const e = document.createElementNS(NSL, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (txt != null) e.textContent = txt; nl.appendChild(e); return e; };
+  mk('line', {x1: 30, y1: 70, x2: 800, y2: 70, stroke: 'var(--muted)', 'stroke-width': 2});
+  mk('line', {x1: 800, y1: 70, x2: 870, y2: 70, stroke: 'var(--muted)', 'stroke-width': 2, 'stroke-dasharray': '6 6'});
+  mk('text', {x: 835, y: 100, 'text-anchor': 'middle', 'font-size': 13, fill: 'var(--muted)'}, '… 116 números …');
+  mk('line', {x1: 870, y1: 70, x2: 970, y2: 70, stroke: 'var(--muted)', 'stroke-width': 2});
+  LINE.forEach(l => {
+    const c = l.codePointAt(0), x = xOf(c);
+    const g = document.createElementNS(NSL, 'g'); g.setAttribute('class', 'nl-letter'); g.setAttribute('tabindex', '0'); g.dataset.l = l;
+    g.innerHTML = '<circle cx="' + x + '" cy="70" r="13"></circle><text x="' + x + '" y="75" text-anchor="middle">' + l + '</text><text class="code" x="' + x + '" y="' + (c % 2 ? 108 : 40) + '" text-anchor="middle">' + c + '</text>';
+    g.addEventListener('click', () => pick(l));
+    g.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(l); } });
+    nl.appendChild(g);
+  });
+})();
+function pick(l){
+  picked.push(l); if (picked.length > 2) picked = [l];
+  nl.querySelectorAll('.nl-letter').forEach(g => g.classList.toggle('on', picked.includes(g.dataset.l)));
+  const fb = document.getElementById('lineFb');
+  if (picked.length < 2) { fb.innerHTML = 'Has elegido la <b>' + l + '</b> (' + l.codePointAt(0) + '). Ahora pulsa otra letra.'; return; }
+  const [a, b] = picked, d = Math.abs(a.codePointAt(0) - b.codePointAt(0));
+  const verdict = d === 0 ? '¡Es la misma letra!' : d <= 3 ? 'La red pensará que son <b>casi iguales</b> 🤨' : d <= 12 ? 'La red pensará que se parecen <b>un poco</b>.' : 'La red pensará que son <b>muy distintas</b> 😮';
+  fb.innerHTML = '<b>' + a + '</b> (' + a.codePointAt(0) + ') y <b>' + b + '</b> (' + b.codePointAt(0) + ') están a <b>' + d + '</b> de distancia. ' + verdict;
+}
+document.getElementById('lineFb').innerHTML = 'Prueba: pulsa la <b>a</b> y la <b>b</b>. Luego la <b>n</b> y la <b>ñ</b>.';
+
+// Paso 3: one-hot
+const OH = 'abcdefghijklmnñopqrstuvwxyz'.split('');
+function ohGrid(el, word, reveal){
+  const letters = [...word].slice(0, 10);
+  let h = '<div class="ohrow head"><span class="lab"></span>' + OH.map(l => '<span>' + l + '</span>').join('') + '</div>';
+  letters.forEach(ch => {
+    h += '<div class="ohrow"><span class="lab">' + (reveal ? esc(ch) : '?') + '</span>' + OH.map(l => '<span class="cell' + (l === ch ? ' lit' : '') + '" title="' + (l === ch ? '1' : '0') + '"></span>').join('') + '</div>';
+  });
+  el.innerHTML = h;
+}
+const ohIn = document.getElementById('ohIn');
+function renderOH(){
+  const clean = noAcc(ohIn.value).replace(/[^a-zñ]/g, '');
+  const changed = ohIn.value.replace(/\s/g, '') !== clean;
+  ohGrid(document.getElementById('ohGrid'), clean, true);
+  const n = Math.min(clean.length, 10);
+  document.getElementById('ohMsg').innerHTML = n ? n + ' letras × 27 bombillas = <b>' + (n * 27) + ' números</b> (' + n + ' unos y ' + (n * 26) + ' ceros) entran en la red.' + (changed ? ' ⚠️ Las mayúsculas, las tildes y los signos no tienen bombilla propia (solo hay 27), así que se han convertido o eliminado.' : '') : 'Escribe una palabra para encender sus bombillas.';
+}
+ohIn.addEventListener('input', renderOH);
+const OH_SECRETS = ['dato', 'red', 'niño', 'pixel', 'token'];
+let oIdx = 0;
+function showOH(){ ohGrid(document.getElementById('ohSecret'), OH_SECRETS[oIdx], false); document.getElementById('ohGuess').value = ''; document.getElementById('ohFb').textContent = ''; }
+document.getElementById('ohCheck').onclick = () => {
+  const ok = noAcc(document.getElementById('ohGuess').value.trim()) === OH_SECRETS[oIdx];
+  document.getElementById('ohFb').innerHTML = ok ? '✅ ¡Correcto! Has leído como una red neuronal.' : '❌ Mira en qué columna está cada bombilla encendida, fila por fila.';
+  if (ok) ohGrid(document.getElementById('ohSecret'), OH_SECRETS[oIdx], true);
+};
+document.getElementById('ohNext').onclick = () => { oIdx = (oIdx + 1) % OH_SECRETS.length; showOH(); };
+
+/* ---------- MISIÓN 2: TOKENIZADOR SIMULADO ---------- */
+const SUB_VOCAB = ("el la los las un una unos unas de del que y o en a al es son por con para sin mi tu su me te se nos le les lo no sí si yo tú él muy más pero como hoy hola gracias casa café agua sol mar día noche perro gato niño niña amigo amiga madre padre clase libro rey reina ia " +
+ "neces ito ita itos itas tomar comer jugar beber hablar estudi aprend leer escrib infant infan tes es s os as o e " +
+ "alumn profes or ora ores oras escol ar er ir ando endo iendo ado ada ados adas ido ida mente ción ciones sión dad idad " +
+ "super cali fra gil ís tico tica pre re des in im ordena dor dores tecno logía inteli gencia artifi cial gal icia vi go bon " +
+ "juguet ete etes bebé vec ino ina inos inas token iza pal abra frase emb ed ding mod elo leng uaje red neur ona onas puta pro gram " +
+ "i need a coffee the cat dog is and hello my name friend school teacher good morning").split(/\s+/).filter(Boolean);
+const SUB_SET = new Set(SUB_VOCAB.map(w => w.toLowerCase()));
+const WORD_DICT = new Set(("el la los las un una unos unas de del que y o en a al es son por con para sin mi tu su me te se no sí yo tú él muy más pero como hoy hola gracias casa café agua sol mar día noche perro gato niño niña niños niñas amigo amiga madre padre clase libro rey reina " +
+ "necesito quiero tengo puedo voy tomar comer jugar beber hablar estudiar aprender leer escribir alumno alumnos alumna alumnas profesor profesora colegio escuela infantes bebés juguetes " +
+ "galicia españa bonita bonito grande pequeño nuevo ordenador inteligencia artificial palabra palabras frase red redes neurona neuronas " +
+ "i need a coffee the cat dog is and hello my name friend school teacher good morning").split(/\s+/));
+function idOf(t){ const i = SUB_VOCAB.findIndex(v => v.toLowerCase() === t); return i >= 0 ? 1000 + i * 37 : 50000 + t.codePointAt(0); }
+function wordId(t){ let h = 7; for (const c of t) h = (h * 31 + c.codePointAt(0)) % 90000; return 2000 + h; }
+const PALETTE = ['#E7E0FF','#D8F3E8','#FFE6CF','#FFD9E4','#D7EAFB','#FFF2BF'];
+
+const RE_PIECES = /\s*[A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9]+|\s*[^\sA-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9]|\s+$/g;
+function subSplit(word){
+  const low = word.toLowerCase(), out = []; let i = 0;
+  while (i < low.length) {
+    let L = Math.min(12, low.length - i);
+    for (; L > 1; L--) if (SUB_SET.has(low.substr(i, L))) break;
+    out.push(word.substr(i, L)); i += L;
+  }
+  return out;
+}
+function tokenize(text, mode){
+  const toks = [];
+  if (mode === 'char') { for (const ch of text) toks.push({t: ch, id: ch.codePointAt(0)}); return toks; }
+  const pieces = text.match(RE_PIECES) || [];
+  for (const p of pieces) {
+    const lead = p.match(/^\s*/)[0], core = p.slice(lead.length);
+    if (!core) { toks.push({t: lead, id: 220}); continue; }
+    if (mode === 'word') {
+      const isWord = /[A-Za-zÁÉÍÓÚÜÑáéíóúüñ]/.test(core);
+      if (!isWord || WORD_DICT.has(core.toLowerCase())) toks.push({t: lead + core, id: wordId(core.toLowerCase())});
+      else toks.push({t: lead + core, id: 0, unk: true});
+    } else {
+      subSplit(core).forEach((s, k) => toks.push({t: (k === 0 ? lead : '') + s, id: idOf(s.toLowerCase())}));
+    }
+  }
+  return toks;
+}
+let tokMode = 'sub', showIds = false;
+const tokIn = document.getElementById('tokIn');
+function renderTok(){
+  const text = tokIn.value, toks = tokenize(text, tokMode), chips = document.getElementById('chips');
+  chips.innerHTML = '';
+  toks.forEach((k, i) => {
+    const c = document.createElement('span'); c.className = 'chip' + (k.unk ? ' unk' : '');
+    c.style.background = PALETTE[i % PALETTE.length];
+    const shown = k.unk ? '[DESCONOCIDA]' : esc(k.t).replace(/ /g, '<span class="sp">·</span>');
+    c.innerHTML = '<span>' + shown + '</span>' + (showIds ? '<small>' + k.id + '</small>' : '');
+    if (k.unk) c.title = 'Palabra que no está en el diccionario: "' + k.t.trim() + '"';
+    chips.appendChild(c);
+  });
+  document.getElementById('sTok').textContent = toks.length;
+  document.getElementById('sChar').textContent = [...text].length;
+  document.getElementById('sWord').textContent = (text.match(/[A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9]+/g) || []).length;
+  const msg = document.getElementById('tokMsg'), unk = toks.filter(t => t.unk).length;
+  const msgs = {
+    char: '🔤 Cada letra, espacio y signo es un token. Fíjate en que necesitas <b>muchísimos</b> tokens para una frase corta.',
+    word: unk ? '📖 ¡Atención! Hay <b>' + unk + '</b> palabra(s) que no están en el diccionario. El modelo no sabe qué significan y las trata todas igual.' : '📖 Todas las palabras están en el diccionario. Prueba a escribir un nombre de lugar, un plural raro o una palabra inventada…',
+    sub: '🧩 Las palabras frecuentes son un solo token. Las demás se forman uniendo trocitos (raíces, terminaciones…). ¡Así nunca hay palabras desconocidas!'
+  };
+  msg.innerHTML = msgs[tokMode]; msg.style.display = text ? 'block' : 'none';
+}
+function setMode(m){
+  tokMode = m;
+  document.querySelectorAll('#tabs [data-mode]').forEach(b => b.classList.toggle('on', b.dataset.mode === m));
+  document.querySelectorAll('#gens .gen').forEach(g => g.classList.toggle('on', g.dataset.mode === m));
+  renderTok();
+}
+document.querySelectorAll('#tabs [data-mode]').forEach(b => b.onclick = () => setMode(b.dataset.mode));
+document.querySelectorAll('#gens .gen').forEach(g => g.onclick = () => { setMode(g.dataset.mode); document.getElementById('tokIn').scrollIntoView({behavior:'smooth', block:'center'}); });
+document.getElementById('idsBtn').onclick = e => { showIds = !showIds; e.target.classList.toggle('on', showIds); renderTok(); };
+tokIn.addEventListener('input', renderTok);
+['Necesito tomarme un café','I need a coffee','niño niños niñas','supercalifragilístico','Vigo es bonita','infantes','inteligencia artificial','Bos días, como estás?'].forEach(x => {
+  const b = document.createElement('button'); b.className = 'ghost'; b.textContent = x;
+  b.onclick = () => { tokIn.value = x; renderTok(); }; document.getElementById('examples').appendChild(b);
+});
+renderTok();
+
+/* ---------- MISIÓN 3: RED RECURRENTE ---------- */
+function noAcc(w){ return w.toLowerCase().replace(/ñ/g, '\u0001').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/\u0001/g, 'ñ'); }
+const showCh = c => c === ' ' ? '␣' : esc(c);
+
+// Paso 1: fábrica de ejemplos
+const facIn = document.getElementById('facIn');
+function renderFactory(){
+  const t = facIn.value.toLowerCase(), chars = [...t];
+  const tb = document.getElementById('facTable');
+  if (chars.length < 2) { tb.innerHTML = ''; document.getElementById('facMsg').textContent = 'Escribe al menos dos letras.'; return; }
+  let h = '<tr><th>Ejemplo</th><th>La red ya ha leído…</th><th>Respuesta correcta</th></tr>';
+  const n = chars.length - 1, show = Math.min(n, 14);
+  for (let i = 0; i < show; i++) {
+    h += '<tr><td>' + (i + 1) + '</td><td class="mono">' + chars.slice(0, i + 1).map(showCh).join('') + '</td><td class="ans">' + showCh(chars[i + 1]) + '</td></tr>';
+  }
+  if (n > show) h += '<tr><td colspan="3" class="muted">… y ' + (n - show) + ' más</td></tr>';
+  tb.innerHTML = h;
+  document.getElementById('facMsg').innerHTML = '🏭 De ' + chars.length + ' caracteres salen <b>' + n + ' ejemplos</b> de entrenamiento, sin que nadie tenga que etiquetar nada.';
+}
+facIn.addEventListener('input', renderFactory); renderFactory();
+
+// Paso 2: red desplegada (conceptual)
+const UN_WORD = 'gato', UN_NEXT = ['a', 't', 'o', '␣'];
+const UN_NOTES = ['he leído "g"', 'he leído "ga"', 'he leído "gat"', 'he leído "gato"'];
+const UN_MSG = [
+  'La red lee la <b>g</b>. Solo con eso, duda mucho: puede venir casi cualquier vocal. Apuesta por la <b>a</b>.',
+  'Lee la <b>a</b> y recibe su nota: "he leído g". Con "ga…" piensa en gato, gana, gafas… Apuesta por la <b>t</b>.',
+  'Lee la <b>t</b> y su nota dice "ga". Con "gat…" casi seguro que viene una <b>o</b> o una <b>a</b>.',
+  'Lee la <b>o</b>. Su nota dice "gat". ¡"gato" es una palabra completa! Lo más probable ahora es un <b>espacio</b>.'
+];
+let unStep = 0;
+function renderUnroll(){
+  let h = '';
+  for (let i = 0; i < UN_WORD.length; i++) {
+    const on = i < unStep, cur = i === unStep - 1;
+    h += '<div class="ustep' + (on ? ' on' : '') + (cur ? ' cur' : '') + '">' +
+      '<div class="uout">' + (on ? 'predice: <b>' + UN_NEXT[i] + '</b>' : '&nbsp;') + '</div>' +
+      '<div class="uarrow">↑</div>' +
+      '<div class="ucore">RED<small>' + (on ? UN_NOTES[i] : 'esperando…') + '</small></div>' +
+      '<div class="uarrow">↑</div>' +
+      '<div class="uin">' + UN_WORD[i] + '</div></div>';
+    if (i < UN_WORD.length - 1) h += '<div class="umem' + (i < unStep - 1 ? ' on' : '') + '">nota de<br>memoria<br>➜</div>';
+  }
+  document.getElementById('unroll').innerHTML = h;
+  document.getElementById('unMsg').innerHTML = unStep ? UN_MSG[unStep - 1] : 'La red todavía no ha leído nada.';
+  document.getElementById('unNext').disabled = unStep >= UN_WORD.length;
+}
+document.getElementById('unNext').onclick = () => { if (unStep < UN_WORD.length) { unStep++; renderUnroll(); } };
+document.getElementById('unReset').onclick = () => { unStep = 0; renderUnroll(); };
+renderUnroll();
+
+// Paso 3: red recurrente real (estilo min-char-rnn)
+const DEFAULT_CORPUS = 'el gato come pescado. el perro come carne. la niña lee un libro. el niño juega con la pelota. la casa es grande. el sol es amarillo. la luna es blanca. el mar es azul. el cielo es azul. la profesora explica la clase. los alumnos escuchan a la profesora. la clase empieza a las nueve. el gato duerme en la cama. el perro duerme en la casa. la niña come una manzana. el niño bebe agua. me gusta el chocolate. me gusta la música. me gusta jugar con mis amigos. me gusta leer libros. la red neuronal aprende con datos. la red aprende letra a letra. la red predice la letra siguiente. el ordenador usa números. las neuronas usan números. cada letra es un número. hoy hace sol. mañana hace frío. el perro corre en el parque. el gato salta en el jardín. la mesa es de madera. la silla es de madera. el libro es de papel. la casa es de piedra. mi madre cocina la comida. mi padre lee el periódico. mi hermano juega al fútbol. mi hermana canta. el tren sale a las ocho. el coche es rojo. la bicicleta es verde. el barco navega en el mar. la niña juega en el parque. el niño lee en la biblioteca. el gato bebe leche. el perro bebe agua. la vaca come hierba. el caballo corre en el campo. la abuela cuenta un cuento. el abuelo planta un árbol. la flor es roja. el árbol es verde. la nube es blanca. la noche es negra. el profesor escribe en la pizarra. la alumna escribe en el cuaderno. los niños juegan en el patio. las niñas cantan en la clase. el ordenador tiene una pantalla. el teclado tiene muchas letras. la red neuronal usa pesos. la red aprende de sus errores. me gusta el verano. me gusta la playa. me gusta pintar. hoy es lunes. mañana es martes. el pájaro canta en el árbol. el pez nada en el agua. la casa tiene una puerta. la puerta es de madera. el niño come una galleta. la niña bebe zumo. mi amigo vive en vigo. mi amiga vive en lugo. el autobús llega a las nueve. la clase termina a las dos.';
+
+function makeRNN(text, H){
+  const chars = [...new Set([...text])].sort(), V = chars.length;
+  const ix = Object.fromEntries(chars.map((c, i) => [c, i]));
+  const gauss = () => { let u = 0; while (!u) u = Math.random(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * Math.random()); };
+  const mat = n => { const m = new Float64Array(n); for (let i = 0; i < n; i++) m[i] = gauss() * 0.01; return m; };
+  const P = { Wxh: mat(H * V), Whh: mat(H * H), Why: mat(V * H), bh: new Float64Array(H), by: new Float64Array(V) };
+  const M = {}; for (const k in P) M[k] = new Float64Array(P[k].length);
+  const data = [...text].map(c => ix[c]), SEQ = 25, LR = 0.05;
+  let pos = 0, hprev = new Float64Array(H), smooth = -Math.log(1 / V);
+  function forward(h, x){
+    const h2 = new Float64Array(H);
+    for (let i = 0; i < H; i++) { let a = P.bh[i] + P.Wxh[i * V + x]; const o = i * H; for (let j = 0; j < H; j++) a += P.Whh[o + j] * h[j]; h2[i] = Math.tanh(a); }
+    const y = new Float64Array(V); let mx = -1e9;
+    for (let k = 0; k < V; k++) { let a = P.by[k]; const o = k * H; for (let j = 0; j < H; j++) a += P.Why[o + j] * h2[j]; y[k] = a; if (a > mx) mx = a; }
+    let s = 0; for (let k = 0; k < V; k++) { y[k] = Math.exp(y[k] - mx); s += y[k]; }
+    for (let k = 0; k < V; k++) y[k] /= s;
+    return [h2, y];
+  }
+  function step(){
+    pos = Math.floor(Math.random() * (data.length - SEQ - 1)); hprev = new Float64Array(H);
+    const inp = data.slice(pos, pos + SEQ), tgt = data.slice(pos + 1, pos + SEQ + 1);
+    const hs = [hprev], ps = []; let loss = 0;
+    for (let t = 0; t < SEQ; t++) { const [h, y] = forward(hs[t], inp[t]); hs.push(h); ps.push(y); loss -= Math.log(y[tgt[t]]); }
+    const G = {}; for (const k in P) G[k] = new Float64Array(P[k].length);
+    let dhnext = new Float64Array(H);
+    for (let t = SEQ - 1; t >= 0; t--) {
+      const dy = Float64Array.from(ps[t]); dy[tgt[t]] -= 1;
+      const h = hs[t + 1], hp = hs[t], dh = Float64Array.from(dhnext);
+      for (let k = 0; k < V; k++) { G.by[k] += dy[k]; const o = k * H; for (let j = 0; j < H; j++) { G.Why[o + j] += dy[k] * h[j]; dh[j] += P.Why[o + j] * dy[k]; } }
+      const dn = new Float64Array(H); for (let i = 0; i < H; i++) dn[i] = (1 - h[i] * h[i]) * dh[i];
+      dhnext = new Float64Array(H);
+      for (let i = 0; i < H; i++) { G.bh[i] += dn[i]; G.Wxh[i * V + inp[t]] += dn[i]; const o = i * H; for (let j = 0; j < H; j++) { G.Whh[o + j] += dn[i] * hp[j]; dhnext[j] += P.Whh[o + j] * dn[i]; } }
+    }
+    for (const k in P) { const p = P[k], g = G[k], m = M[k]; for (let i = 0; i < p.length; i++) { let gi = g[i]; if (gi > 5) gi = 5; else if (gi < -5) gi = -5; m[i] += gi * gi; p[i] -= LR * gi / Math.sqrt(m[i] + 1e-8); } }
+    hprev = hs[SEQ]; pos += SEQ;
+    smooth = smooth * 0.99 + (loss / SEQ) * 0.01;
+    return smooth;
+  }
+  function pick(y, temp){
+    const w = Array.from(y, p => Math.pow(p, 1 / temp)), s = w.reduce((a, b) => a + b, 0);
+    let r = Math.random() * s, k = 0; for (; k < V - 1; k++) { r -= w[k]; if (r <= 0) break; }
+    return k;
+  }
+  function sampleDetail(seed, n, temp){
+    let h = new Float64Array(H), y = null;
+    for (const c of seed) if (c in ix) [h, y] = forward(h, ix[c]);
+    if (!y) [h, y] = forward(h, ix[' '] ?? 0);
+    const out = [];
+    for (let t = 0; t < n; t++) { const k = pick(y, temp); out.push([chars[k], y[k]]); [h, y] = forward(h, k); }
+    return out;
+  }
+  const sample = (seed, n, temp) => sampleDetail(seed, n, temp).map(x => x[0]).join('');
+  function trace(text){
+    let h = new Float64Array(H), y; const res = [];
+    for (const c of text) {
+      if (!(c in ix)) { res.push({c, unknown: true}); continue; }
+      [h, y] = forward(h, ix[c]);
+      const top = Array.from(y, (p, k) => [chars[k], p]).sort((a, b) => b[1] - a[1]).slice(0, 3);
+      res.push({c, h: Array.from(h.slice(0, 16)), top});
+    }
+    return res;
+  }
+  return { step, sample, sampleDetail, trace, letters: () => pos, V, params: 2 * H * V + H * H + H + V };
+}
+
+const corpusIn = document.getElementById('corpusIn');
+corpusIn.value = DEFAULT_CORPUS;
+let lastPeek = 0, rnn, iters, lettersRead, lossHist, running = false, nextSampleAt, samplesEl = document.getElementById('samples');
+const SAMPLE_AT = [100, 250, 500, 1000, 1800, 3000, 5000, 8000, 12000, 16000, 20000];
+const PHASE1 = 8000, MAX_ITERS = 20000;
+const tempIn = document.getElementById('tempIn');
+const TEMP_TXT = t => t <= 0.35 ? 'muy prudente' : t <= 0.7 ? 'equilibrada' : t <= 1.05 ? 'atrevida' : 'muy loca';
+function showTemp(){ document.getElementById('tempVal').textContent = (+tempIn.value).toFixed(1).replace('.', ',') + ' · ' + TEMP_TXT(+tempIn.value); }
+tempIn.addEventListener('input', showTemp); showTemp();
+const curTemp = () => +tempIn.value;
+function cleanCorpus(t){ return t.toLowerCase().replace(/\s+/g, ' ').trim() + ' '; }
+function resetRNN(){
+  running = false; updateTrainBtn();
+  const txt = cleanCorpus(corpusIn.value);
+  if (txt.length < 300) { samplesEl.innerHTML = '<p class="feedback">⚠️ Los textos de entrenamiento son muy cortos. Escribe al menos 300 letras.</p>'; return false; }
+  rnn = makeRNN(txt, 64); iters = 0; lettersRead = 0; lossHist = []; nextSampleAt = 0;
+  samplesEl.innerHTML = '';
+  addSample(0);
+  updateStats(); drawLoss(); renderPeek();
+  document.getElementById('genOut').textContent = '';
+  return true;
+}
+function addSample(it){
+  const d = document.createElement('div'); d.className = 'sample';
+  d.innerHTML = '<span class="it">' + (it === 0 ? 'Sin entrenar' : 'Paso ' + it.toLocaleString('es-ES')) + '</span><span class="txt">el ' + esc(rnn.sample('. el ', 70, 0.5)) + '</span>';
+  samplesEl.prepend(d);
+}
+function updateStats(){
+  document.getElementById('itNum').textContent = iters.toLocaleString('es-ES');
+  document.getElementById('lossNum').textContent = lossHist.length ? lossHist[lossHist.length - 1].toFixed(2).replace('.', ',') : '–';
+  document.getElementById('letNum').textContent = (iters * 25).toLocaleString('es-ES');
+}
+function drawLoss(){
+  const cv = document.getElementById('lossChart'), g = cv.getContext('2d'), W = cv.width, Hh = cv.height, pad = 34;
+  g.clearRect(0, 0, W, Hh);
+  g.strokeStyle = '#E9E3D8'; g.lineWidth = 1; g.fillStyle = '#5B6478'; g.font = '13px Nunito, sans-serif';
+  const maxY = 3.6;
+  for (let v = 0; v <= 3; v++) { const y = Hh - pad + (-(v / maxY)) * (Hh - pad - 10); g.beginPath(); g.moveTo(pad, y); g.lineTo(W - 8, y); g.stroke(); g.fillText(String(v), 10, y + 4); }
+  g.fillText('pasos →', W - 64, Hh - 10);
+  if (lossHist.length < 2) return;
+  g.strokeStyle = '#C2185B'; g.lineWidth = 3; g.beginPath();
+  const scaleMax = iters > PHASE1 ? MAX_ITERS : PHASE1;
+  lossHist.forEach((l, i) => { const x = pad + (i / (scaleMax / 20)) * (W - pad - 10), y = Hh - pad - (Math.min(l, maxY) / maxY) * (Hh - pad - 10); i ? g.lineTo(x, y) : g.moveTo(x, y); });
+  g.stroke();
+}
+function trainLoop(){
+  if (!running) return;
+  const t0 = performance.now();
+  const limit = iters < PHASE1 ? PHASE1 : MAX_ITERS;
+  while (performance.now() - t0 < 28 && iters < limit) {
+    const l = rnn.step(); iters++;
+    if (iters % 20 === 0) lossHist.push(l);
+    if (SAMPLE_AT.includes(iters)) addSample(iters);
+  }
+  updateStats(); drawLoss();
+  if (performance.now() - lastPeek > 700) { lastPeek = performance.now(); renderPeek(); }
+  if (iters >= limit) {
+    running = false; updateTrainBtn(); renderPeek();
+    samplesEl.insertAdjacentHTML('afterbegin', '<p class="feedback" style="margin:0 0 8px">' + (iters >= MAX_ITERS ? '🏁 Entrenamiento completo (20.000 pasos). ¿Ha mejorado mucho respecto al paso 8.000?' : '🏁 Primera fase terminada. ¡Compara la primera línea con la última! Puedes seguir entrenando hasta 20.000 pasos.') + '</p>');
+    return;
+  }
+  requestAnimationFrame(trainLoop);
+}
+function updateTrainBtn(){
+  const b = document.getElementById('trainBtn');
+  b.textContent = running ? '⏸ Pausar' : (iters >= MAX_ITERS ? '✔ Terminado' : (iters ? '▶ Seguir entrenando' : '▶ Entrenar'));
+  document.getElementById('paramNum').textContent = rnn ? rnn.params.toLocaleString('es-ES') : '–';
+  b.disabled = !running && iters >= MAX_ITERS;
+}
+document.getElementById('trainBtn').onclick = () => { if (!rnn) return; running = !running; updateTrainBtn(); if (running) requestAnimationFrame(trainLoop); };
+document.getElementById('resetBtn').onclick = () => { resetRNN(); };
+document.getElementById('genBtn').onclick = () => {
+  const seed = cleanCorpus(document.getElementById('genSeed').value).trimEnd();
+  const det = rnn.sampleDetail('. ' + seed, 120, curTemp());
+  document.getElementById('genOut').innerHTML = '<b>' + esc(seed) + '</b>' + det.map(([c, p]) => p < 0.1 ? '<span class="lowp" title="' + Math.round(p * 100) + ' %">' + esc(c) + '</span>' : p < 0.4 ? '<span class="midp" title="' + Math.round(p * 100) + ' %">' + esc(c) + '</span>' : esc(c)).join('');
+  document.getElementById('genLegend').hidden = false;
+};
+
+// Paso 4: mirar dentro
+const peekIn = document.getElementById('peekIn');
+function renderPeek(){
+  if (!rnn) return;
+  const tr = rnn.trace(peekIn.value.toLowerCase());
+  document.getElementById('peek').innerHTML = tr.map(s => {
+    if (s.unknown) return '<div class="pcol"><div class="pin">' + showCh(s.c) + '</div><div class="pmem muted" style="font-size:12px">letra desconocida</div></div>';
+    const bars = s.h.map(v => '<i><u style="height:' + Math.round(Math.abs(v) * 21 + 1) + 'px;' + (v >= 0 ? 'bottom:50%;background:var(--green)' : 'top:50%;background:var(--pink)') + '"></u></i>').join('');
+    const top = s.top.map(([c, p]) => '<div><b>' + showCh(c) + '</b> ' + Math.round(p * 100) + ' %</div>').join('');
+    return '<div class="pcol"><div class="pin">' + showCh(s.c) + '</div><div class="pmem">' + bars + '</div><div class="ptop">' + top + '</div></div>';
+  }).join('');
+}
+peekIn.addEventListener('input', renderPeek);
+resetRNN(); updateTrainBtn();
+
+/* ---------- MISIÓN 4: TABLA ---------- */
+const tbody = document.querySelector('#tokTable tbody');
+function addRow(text, editable){
+  const tr = document.createElement('tr');
+  tr.innerHTML = '<td>' + (editable ? '<input type="text" class="ph" placeholder="Escribe tu frase">' : '<b>' + esc(text) + '</b>') + '</td>' +
+    '<td class="w"></td><td><input type="number" min="0" class="bet"></td><td><input type="number" min="0" class="real"></td><td class="ratio">–</td>';
+  tbody.appendChild(tr);
+  const getText = () => editable ? tr.querySelector('.ph').value : text;
+  const upd = () => {
+    const w = (getText().match(/[A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9]+/g) || []).length;
+    tr.querySelector('.w').textContent = w;
+    const r = parseFloat(tr.querySelector('.real').value), bet = parseFloat(tr.querySelector('.bet').value);
+    const cell = tr.querySelector('.ratio');
+    if (r > 0 && w > 0) {
+      let s = (r / w).toFixed(2).replace('.', ',');
+      if (bet >= 0 && !isNaN(bet)) s += bet === r ? ' 🎯' : (Math.abs(bet - r) <= 1 ? ' 👍' : '');
+      cell.textContent = s;
+    } else cell.textContent = '–';
+  };
+  tr.querySelectorAll('input').forEach(i => i.addEventListener('input', upd)); upd();
+  tr.getRow = () => ({frase: getText(), apuesta: tr.querySelector('.bet').value, real: tr.querySelector('.real').value, ratio: tr.querySelector('.ratio').textContent});
+}
+['Necesito tomarme un café','I need a coffee','Vigo','supercalifragilístico','infantes','Hola, me llamo Lucía y estudio en el instituto','Bos días, como estás?'].forEach(t => addRow(t, false));
+document.getElementById('addRow').onclick = () => addRow('', true);
+const wc = document.getElementById('wordsCalc');
+function calc(){ const w = parseFloat(wc.value) || 0; document.getElementById('calcOut').innerHTML = '≈ <b>' + Math.round(w * 1000 / 750).toLocaleString('es-ES') + ' tokens</b> (si el texto estuviera en inglés)'; }
+wc.addEventListener('input', calc); calc();
+
+/* ---------- MISIÓN 5: MAPA ---------- */
+const GROUPS = {
+  ninos:{name:'Niños', c:'#E2457A'}, escuela:{name:'Escuela', c:'#2E86DE'}, ejercito:{name:'Ejército', c:'#7A8B2E'},
+  realeza:{name:'Realeza', c:'#B07D12'}, animales:{name:'Animales', c:'#14A37A'}, info:{name:'Informática', c:'#6C4CF1'}, doble:{name:'¡Doble sentido!', c:'#FF8A3D'}
+};
+const PTS = [
+  ['niño',260,250,'ninos'],['niña',300,215,'ninos'],['niños',235,215,'ninos'],['niñas',390,245,'ninos'],['bebés',215,280,'ninos'],['juguetes',290,295,'ninos'],['infancia',190,245,'ninos'],['familias',330,190,'ninos'],
+  ['alumno',150,420,'escuela'],['alumnos',180,450,'escuela'],['profesor',110,470,'escuela'],['colegio',230,440,'escuela'],['clase',150,510,'escuela'],['examen',230,500,'escuela'],['preescolar',255,370,'escuela'],['escolar',210,380,'escuela'],
+  ['soldados',615,235,'ejercito'],['ejército',660,195,'ejercito'],['batallón',700,250,'ejercito'],['infantería',555,205,'ejercito'],['caballería',610,285,'ejercito'],['almirante',730,160,'ejercito'],
+  ['rey',470,70,'realeza'],['reina',530,60,'realeza'],['princesa',450,115,'realeza'],['príncipe',535,108,'realeza'],['palacio',580,90,'realeza'],['infanta',470,150,'realeza'],
+  ['perro',560,500,'animales'],['gato',610,470,'animales'],['caballo',640,390,'animales'],['vaca',540,560,'animales'],['oveja',600,560,'animales'],['conejo',650,520,'animales'],
+  ['ordenador',870,480,'info'],['teclado',900,530,'info'],['pantalla',870,580,'info'],['internet',930,440,'info'],['clic',940,590,'info'],
+  ['infantes',470,215,'doble'],['ratón',760,520,'doble']
+];
+const svg = document.getElementById('map'), NS = 'http://www.w3.org/2000/svg';
+const lineLayer = document.createElementNS(NS, 'g'); svg.appendChild(lineLayer);
+const nodes = PTS.map(([w, x, y, g]) => {
+  const gEl = document.createElementNS(NS, 'g');
+  const c = document.createElementNS(NS, 'circle'); c.setAttribute('cx', x); c.setAttribute('cy', y); c.setAttribute('r', g === 'doble' ? 9 : 6); c.setAttribute('fill', GROUPS[g].c);
+  const t = document.createElementNS(NS, 'text'); t.setAttribute('x', x + 11); t.setAttribute('y', y + 5); t.textContent = w; t.setAttribute('fill', GROUPS[g].c);
+  if (g === 'doble') { t.setAttribute('font-size', '20'); t.style.fontWeight = '800'; }
+  gEl.appendChild(c); gEl.appendChild(t); svg.appendChild(gEl);
+  gEl.addEventListener('click', () => select(w));
+  return {w, x, y, g, el: gEl, c, t};
+});
+const legend = document.getElementById('legend');
+Object.values(GROUPS).forEach(G => legend.innerHTML += '<span><i style="background:' + G.c + '"></i>' + G.name + '</span>');
+let sel = null;
+const kRange = document.getElementById('kRange');
+function dist(a, b){ return Math.hypot(a.x - b.x, a.y - b.y) / 1000; }
+function select(w){
+  const s = nodes.find(n => n.w === w); if (!s) return; sel = s;
+  const k = +kRange.value;
+  const near = nodes.filter(n => n !== s).map(n => ({n, d: dist(s, n)})).sort((a, b) => a.d - b.d).slice(0, k);
+  const nearSet = new Set(near.map(x => x.n));
+  lineLayer.innerHTML = '';
+  near.forEach(({n}) => { const l = document.createElementNS(NS, 'line'); l.setAttribute('x1', s.x); l.setAttribute('y1', s.y); l.setAttribute('x2', n.x); l.setAttribute('y2', n.y); l.setAttribute('stroke', '#FF8A3D'); l.setAttribute('stroke-width', '2'); l.setAttribute('stroke-dasharray', '5 4'); lineLayer.appendChild(l); });
+  nodes.forEach(n => {
+    const on = n === s || nearSet.has(n);
+    n.el.style.opacity = on ? 1 : .18;
+    n.c.setAttribute('r', n === s ? 13 : (on ? 8 : (n.g === 'doble' ? 9 : 6)));
+  });
+  document.getElementById('selTitle').innerHTML = 'Vecinas de <span style="color:' + GROUPS[s.g].c + '">' + esc(s.w) + '</span>';
+  document.getElementById('nlist').innerHTML = near.map(({n, d}) => '<li><b style="color:' + GROUPS[n.g].c + '">' + esc(n.w) + '</b><span class="mono">' + d.toFixed(3).replace('.', ',') + '</span></li>').join('');
+}
+kRange.addEventListener('input', () => { document.getElementById('kVal').textContent = kRange.value; if (sel) select(sel.w); });
+document.getElementById('mapSearch').addEventListener('input', e => {
+  const q = e.target.value.trim().toLowerCase(); if (!q) return;
+  const hit = nodes.find(n => n.w === q) || nodes.find(n => n.w.startsWith(q)); if (hit) select(hit.w);
+});
+select('infantes');
+
+/* ---------- INTRUSO ---------- */
+const ROUNDS = [
+  {o:['perro','gato','caballo','teclado'], a:'teclado', e:'"teclado" vive en el barrio de la informática.'},
+  {o:['rey','reina','princesa','soldados'], a:'soldados', e:'"soldados" está en el grupo del ejército, no en el de la realeza.'},
+  {o:['niño','bebés','juguetes','almirante'], a:'almirante', e:'"almirante" está con el ejército.'},
+  {o:['alumno','profesor','examen','vaca'], a:'vaca', e:'¡Las vacas no van al colegio! Está con los animales.'},
+  {o:['ejército','batallón','infantería','pantalla'], a:'pantalla', e:'"pantalla" pertenece a la informática.'},
+  {o:['ordenador','teclado','internet','palacio'], a:'palacio', e:'"palacio" está con la realeza.'},
+  {o:['ratón','teclado','pantalla','oveja'], a:'oveja', e:'¡Trampa! "ratón" también es un aparato del ordenador. La intrusa es "oveja".'},
+  {o:['caballería','soldados','batallón','familias'], a:'familias', e:'"familias" está cerca de los niños. Ojo: "caballería" no está con los animales aunque se parezca a "caballo".'}
+];
+let rIdx = -1, score = 0, total = 0, answered = false;
+const order = ROUNDS.map((_, i) => i).sort(() => Math.random() - .5);
+function nextRound(){
+  rIdx = (rIdx + 1) % ROUNDS.length; answered = false;
+  const R = ROUNDS[order[rIdx]], box = document.getElementById('intOpts');
+  box.innerHTML = ''; document.getElementById('intFb').textContent = '';
+  [...R.o].sort(() => Math.random() - .5).forEach(w => {
+    const b = document.createElement('button'); b.className = 'opt'; b.textContent = w;
+    b.onclick = () => {
+      if (answered) return; answered = true; total++;
+      const ok = w === R.a; if (ok) score++;
+      b.classList.add(ok ? 'right' : 'wrong');
+      [...box.children].forEach(x => { if (x.textContent === R.a) x.classList.add('right'); });
+      document.getElementById('intFb').innerHTML = (ok ? '✅ ¡Bien visto! ' : '❌ Casi… ') + R.e;
+      document.getElementById('intScore').textContent = score; document.getElementById('intTotal').textContent = total;
+    };
+    box.appendChild(b);
+  });
+}
+document.getElementById('intNext').onclick = nextRound; nextRound();
+
+/* ---------- PREGUNTAS DE RESPUESTA MÚLTIPLE ---------- */
+const MCQ = {
+  r1: {q: '¿Por qué no es buena idea que la red reciba la "a" como 97 y la "z" como 122?', o: [
+    ['Porque la red hace cuentas con esos números y sacaría parecidos falsos: la "a" y la "b" le parecerían casi iguales y la "ñ", rarísima.', 1],
+    ['Porque son números demasiado grandes para una neurona. Si numeráramos las letras del 1 al 27, el problema desaparecería.', 0],
+    ['Porque la tabla Unicode solo sirve para el alfabeto inglés y la red no podría leer la "ñ" ni las tildes.', 0],
+    ['Porque una misma letra puede tener varios números distintos según el ordenador que se use.', 0]],
+    e: 'La red multiplica y suma esos números, así que su tamaño cuenta. El problema no es que sean grandes: del 1 al 27 seguiría pasando lo mismo, porque la cercanía entre los números solo refleja el orden del abecedario. Unicode sí tiene la ñ (241) y las tildes.'},
+  r1b: {q: 'Una red debe distinguir minúsculas, mayúsculas, vocales con tilde o diéresis (á, é, í, ó, ú, ü en las dos formas), el espacio y unos 15 signos de puntuación. ¿Cuántas neuronas de entrada necesita aproximadamente con codificación one-hot?', o: [
+    ['27, una por letra, porque las mayúsculas y las tildes se pueden ignorar', 0],
+    ['54, porque solo hay que duplicar las letras para las mayúsculas', 0],
+    ['Unas 85, una por cada carácter distinto', 1],
+    ['255, igual que los valores de color de un píxel', 0]],
+    e: '27 minúsculas + 27 mayúsculas + 12 vocales con tilde o diéresis + 1 espacio + unos 15 signos ≈ 82. En one-hot hace falta una neurona (una bombilla) por cada carácter distinto que se quiera distinguir. Si se ignoran las mayúsculas y las tildes, la red ya no podría distinguirlas.'},
+  r1c: {q: 'Con el panel de 27 bombillas, ¿cuántos números entran en la red para la palabra "red"? ¿Cuántos de ellos son unos?', o: [
+    ['3 números, uno por letra; los tres son unos', 0],
+    ['27 números, con 3 unos', 0],
+    ['81 números, con 3 unos', 1],
+    ['81 números, con 78 unos', 0]],
+    e: 'Cada letra enciende un panel de 27 bombillas: 3 letras × 27 = 81 números. En cada panel solo hay una bombilla encendida, así que hay 3 unos y 78 ceros.'},
+
+  r2a: {q: 'En modo 📖 Palabras, "Necesito tomarme un café" sale como Necesito | [DESCONOCIDA] | un | café. ¿Por qué?', o: [
+    ['Porque "tomarme" es demasiado larga y los modelos de palabras solo aceptan palabras cortas.', 0],
+    ['Porque esa forma exacta no está en su diccionario, aunque "tomar" sí lo esté, y el modelo no sabe partirla.', 1],
+    ['Porque el modelo de palabras borra los pronombres como "me" y entonces la palabra queda incompleta.', 0],
+    ['Porque "tomarme" es una palabra inventada que no existe en español.', 0]],
+    e: 'Un modelo palabra a palabra necesita un token para cada forma completa. En español cada verbo tiene muchísimas formas (tomo, tomaré, tómatelo, tomarme…) y es imposible incluirlas todas. En modo 🧩 Tokens se parte en tomar + me y el problema desaparece.'},
+  r2b: {q: 'En modo 🧩 Tokens, "niños" y "niñas" comparten trozos con "niño" y "niña". ¿Qué ventaja tiene esto para el modelo?', o: [
+    ['Que el modelo aprende la regla gramatical del plural y ya no se equivoca nunca.', 0],
+    ['Que el texto ocupa menos caracteres y se guarda en menos espacio.', 0],
+    ['Que puede relacionar las formas de una palabra y entender palabras nuevas combinando trozos que ya conoce.', 1],
+    ['Que ya no necesita convertir los tokens en vectores (embeddings).', 0]],
+    e: 'Al compartir trozos, el modelo reconoce que las palabras están relacionadas sin aprender cada forma desde cero. No aprende una regla gramatical: aprende de la frecuencia con que aparecen los trozos. Y sigue necesitando los embeddings para convertir cada token en números.'},
+  r2c: {q: 'En el tokenizador real de GPT-5, "niño niños niñas" da: ni | ño | ·niños | ·niñas (el punto es un espacio). ¿Por qué se parte "niño" y no "niños"?', o: [
+    ['Porque "niño" es menos frecuente que "niños" en los textos.', 0],
+    ['Porque el tokenizador siempre parte la primera palabra de una frase.', 0],
+    ['Porque la ñ obliga a partir la palabra, salvo en plural.', 0],
+    ['Porque va primero y no tiene espacio delante: "niño" sin espacio y " niño" con espacio son tokens distintos.', 1]],
+    e: 'Si cambias el orden a "niños niño niñas", se parte "niños" y "niño" sale entera. Y "el niño" da el | ·niño: la primera palabra no siempre se parte. El tokenizador no sigue reglas de gramática: hasta un espacio cambia el resultado.'},
+
+  r3a: {q: '¿Cuántos ejemplos de entrenamiento salen de "el gato come" y quién pone las respuestas correctas?', o: [
+    ['12 ejemplos, uno por carácter; las respuestas las pone una persona', 0],
+    ['11 ejemplos; las respuestas las pone el propio texto', 1],
+    ['3 ejemplos, uno por palabra; las respuestas las pone el propio texto', 0],
+    ['11 ejemplos; las respuestas las pone una persona que revisa el texto', 0]],
+    e: 'Son 12 caracteres (contando los espacios), y cada uno, menos el primero, es la respuesta correcta para lo anterior: 11 ejemplos. Nadie etiqueta nada a mano. Por eso estas redes pudieron entrenarse con millones de textos (aprendizaje autosupervisado).'},
+  r3b: {q: 'Observa lo que escribe tu red durante el entrenamiento. ¿En qué orden aprende?', o: [
+    ['Primero el significado de las frases, después las palabras y al final la ortografía.', 0],
+    ['Primero los espacios y las letras frecuentes, luego palabras cortas como "el" o "la", después palabras completas. El significado no llega a aprenderlo.', 1],
+    ['Primero palabras completas, luego aprende a poner espacios entre ellas y al final los puntos.', 0],
+    ['Lo aprende todo a la vez a partir del paso 100; después solo mejora la velocidad.', 0]],
+    e: 'En los primeros pasos solo acierta los espacios y las letras más frecuentes (la "e", la "a"). Después aparecen "el", "la" y "es"; más tarde, palabras completas y frases que se parecen a las de los textos. Pero nunca entiende lo que escribe: solo sabe qué letra suele venir después.'},
+  r3d: {q: 'Una red entrenada con los mismos textos tiene un error de 0,09 y solo repite frases de memoria. Otra tiene un error de 0,6 y combina palabras de forma nueva. ¿Cuál escribe mejor textos nuevos?', o: [
+    ['La de 0,09, porque cuanto más bajo es el error, mejor es siempre la red.', 0],
+    ['La de 0,6, porque generaliza; la de 0,09 se ha aprendido los textos de memoria.', 1],
+    ['Ninguna: el error no tiene ninguna relación con lo que escribe la red.', 0],
+    ['Las dos igual, porque se han entrenado con los mismos textos.', 0]],
+    e: 'Acertar con los datos de entrenamiento no demuestra que un modelo generalice (apartado 3.2 del libro). Un error muy bajo con pocos textos suele significar memorización: la red repite lo que ha visto pero no sabe crear frases nuevas.'},
+  r3e: {q: 'Con la creatividad al mínimo, la red elige casi siempre su letra favorita. ¿Qué es lo más probable que ocurra?', o: [
+    ['Que escriba letras totalmente al azar.', 0],
+    ['Que invente muchas palabras nuevas y originales.', 0],
+    ['Que repita frases muy parecidas a las de sus textos, e incluso se quede en bucle.', 1],
+    ['Que deje de escribir, porque ninguna letra llega al 100 %.', 0]],
+    e: 'Si siempre elige la letra más probable, sigue los caminos que más ha visto: repite frases de sus textos y puede entrar en bucles ("me gusta la música. me gusta la música…"). Con mucha creatividad se arriesga con letras improbables y aparecen palabras inventadas.'},
+  r3c: {q: 'En "Las niñas que viven en la casa del final de la calle de mi abuela están muy content_", ¿por qué una red recurrente simple suele fallar la última letra?', o: [
+    ['Porque no conoce la palabra "contentas".', 0],
+    ['Porque la información de "Las niñas" se ha ido borrando de su memoria tras más de 70 letras.', 1],
+    ['Porque solo puede leer 25 letras y después se apaga.', 0],
+    ['Porque la última letra de una frase siempre es la más difícil de predecir.', 0]],
+    e: 'Cada letra nueva emborrona un poco la memoria. Para resolverlo se inventaron las LSTM (1997), con una memoria mejor, y después los Transformers (2017), que miran todo el texto a la vez. Las 25 letras son solo el tamaño de los trozos con los que se entrena la red de la actividad.'},
+  r3f: {q: '¿Qué tecnología sustituyó a las redes recurrentes en modelos como ChatGPT?', o: [
+    ['La LSTM', 0], ['El Transformer', 1], ['Word2Vec', 0], ['Los tokens BPE', 0]],
+    e: 'La LSTM es una red recurrente mejorada, no su sustituta. Word2Vec crea embeddings y BPE trocea el texto en tokens: ChatGPT usa tokens BPE, pero dentro funciona con un Transformer, que mira todo el texto a la vez en lugar de leer letra a letra.'},
+
+  r4: {q: 'Según tu tabla, ¿qué conclusión es correcta?', o: [
+    ['El español gasta más tokens porque sus palabras son siempre más largas que las inglesas.', 0],
+    ['Todos los idiomas gastan lo mismo: el número de tokens solo depende del número de letras.', 0],
+    ['El gallego gasta muchísimos más tokens que el español porque el tokenizador no lo conoce.', 0],
+    ['El inglés gasta menos tokens por palabra porque el tokenizador aprendió sus trozos sobre todo con textos en inglés.', 1]],
+    e: '"I need a coffee" gasta 1 token por palabra; las frases en español, entre 1,3 y 1,5. El gallego queda parecido al español porque comparte muchos trozos ("Bos días, como estás?" da 1,5). La causa es la frecuencia en los textos de entrenamiento, no la longitud: "Vigo" tiene 4 letras y gasta 2 tokens.'},
+  r4b: {q: 'Según la regla de oro, ¿cuántos tokens ocupa aproximadamente un texto en inglés de 1.500 palabras?', o: [
+    ['Unos 1.125', 0], ['Unos 1.500', 0], ['Unos 2.000', 1], ['Unos 3.000', 0]],
+    e: '1.000 tokens ≈ 750 palabras, así que 1.500 palabras ≈ 2.000 tokens (cada palabra gasta unos 1,33 tokens). 1.125 sale de multiplicar por 0,75 en vez de dividir. En español el número sería mayor.'},
+  r4c: {q: '"supercalifragilístico" se divide en 6 tokens: super | cal | if | rag | il | ístico. ¿Por qué?', o: [
+    ['Porque el tokenizador separa las sílabas de las palabras largas.', 0],
+    ['Porque es poco frecuente en los textos y se forma uniendo trozos que el tokenizador sí conoce.', 1],
+    ['Porque cualquier palabra con tilde se parte en varios tokens.', 0],
+    ['Porque cualquier palabra de más de 20 letras se parte siempre en 6 trozos.', 0]],
+    e: 'No son sílabas ("cal | if | rag" no lo son). Las palabras frecuentes tienen token propio, y las raras se forman con trozos que sí están en el vocabulario. "café" tiene tilde y es un solo token.'},
+
+  r5: {q: '¿Por qué "infantes" está cerca de "niños" y también de "soldados"?', o: [
+    ['Porque alguien programó el mapa para colocar juntas las palabras del mismo tema.', 0],
+    ['Porque "infantes" e "infantería" empiezan por las mismas letras.', 0],
+    ['Porque tiene varios significados y aparece en textos de niños, de ejército y de realeza.', 1],
+    ['Porque es un error del mapa: debería estar solo junto a "niños".', 0]],
+    e: 'El embedding no mira cómo se escribe una palabra, sino las palabras que la rodean en los textos. Como "infantes" se usa para niños, para soldados de infantería y para hijos de reyes, queda entre esos grupos. Nadie le dijo los temas: los descubrió solo (aprendizaje no supervisado, apartado 3.3.2).'},
+  r5b: {q: 'En un mapa de embeddings, que dos palabras estén muy cerca significa que…', o: [
+    ['significan exactamente lo mismo', 0],
+    ['se escriben de forma parecida', 0],
+    ['aparecen siempre juntas en la misma frase', 0],
+    ['se usan en contextos parecidos, rodeadas de palabras similares', 1]],
+    e: '"Perro" y "gato" están cerca pero no significan lo mismo, y no tienen por qué aparecer en la misma frase: se usan en situaciones parecidas (comer, dormir, mascota…). La escritura no influye: "ratón" está cerca de "teclado", que no se le parece nada.'},
+
+  pA: {q: '¿Por qué "alumnos" aparece entre las vecinas más cercanas de "alumno"?', o: [
+    ['Porque el Projector coloca juntas las palabras que comparten letras.', 0],
+    ['Porque singular y plural se usan en contextos casi idénticos.', 1],
+    ['Porque la lista de vecinas está ordenada alfabéticamente.', 0],
+    ['Porque alguien etiquetó a mano las palabras relacionadas.', 0]],
+    e: '"Alumno" y "alumnos" aparecen rodeadas de las mismas palabras (clase, profesor, colegio…), así que sus vectores apuntan en direcciones muy parecidas.'},
+  pB: {q: 'Las 11 vecinas más cercanas de "infantes" son: infante, niños, niñas, caballería, infantería, ejército, preescolar, adultos, menores, soldados y bebés. ¿Qué significado domina?', o: [
+    ['El de ejército: es el grupo más numeroso', 0],
+    ['El de niños y edades: es más de la mitad', 1],
+    ['El de realeza: está en las primeras posiciones', 0],
+    ['Ninguno: están repartidas a partes iguales', 0]],
+    e: 'Niños y edades: infante, niños, niñas, preescolar, adultos, menores y bebés (7). Ejército: caballería, infantería, ejército y soldados (4). Realeza: ninguna entre las 11 primeras (aparece "princesas" más lejos). Domina el significado más frecuente en los textos.'},
+  pC: {q: 'Buscas "banco" y casi todas sus vecinas tienen que ver con el dinero; apenas hay palabras de asientos o parques. ¿Por qué?', o: [
+    ['Porque en los textos de entrenamiento "banco" se usa mucho más como entidad financiera.', 1],
+    ['Porque el embedding borra el significado menos importante de cada palabra.', 0],
+    ['Porque los asientos nunca aparecen en los textos de internet.', 0],
+    ['Porque el Projector solo muestra palabras de economía.', 0]],
+    e: 'Cada palabra tiene un solo vector, que mezcla todos sus significados según lo que aparecen en los textos. El uso más frecuente "tira" más del vector y acapara las vecinas. El otro significado no se borra, pero queda más diluido.'},
+  pD: {q: 'Al cambiar entre PCA, T-SNE y UMAP, ¿qué ocurre?', o: [
+    ['Cambian el dibujo y la lista de vecinas, porque cada método calcula las distancias de otra forma.', 0],
+    ['Cambia la lista de vecinas, pero el dibujo se mantiene igual.', 0],
+    ['Cambia el dibujo, pero no la lista: las vecinas se calculan con las 300 dimensiones originales.', 1],
+    ['No cambia nada: los tres métodos dan el mismo resultado con otro nombre.', 0]],
+    e: 'PCA, T-SNE y UMAP son tres formas de hacer la "sombra" de 300 dimensiones en 2 o 3. La lista de la derecha dice "Nearest points in the original space": se calcula antes de hacer la sombra.'},
+  pE: {q: 'Con "Sphereize data" activado, al cambiar de COSINE a EUCLIDEAN, ¿qué pasa con la lista de vecinas?', o: [
+    ['Cambian los números y también el orden de las palabras.', 0],
+    ['Cambian los números, pero el orden de las palabras es el mismo.', 1],
+    ['Los números y el orden son exactamente iguales.', 0],
+    ['Cambia el orden, pero los números son los mismos.', 0]],
+    e: 'Coseno mide el ángulo entre los vectores; euclídea, la distancia en línea recta entre sus puntas. "Sphereize data" hace que todos los vectores midan lo mismo, así que solo los diferencia el ángulo y las dos medidas ordenan igual. Si la desactivas, el orden puede cambiar.'},
+  pE2: {q: 'Con "Sphereize data" activado, "infante" está a 0,361 de "infantes" con COSINE. ¿Qué distancia marca con EUCLIDEAN? (Pista: euclídea = √(2 × coseno))', o: [
+    ['0,361', 0], ['0,601', 0], ['0,722', 0], ['0,849', 1]],
+    e: '√(2 × 0,361) = √0,722 ≈ 0,850. El Projector marca 0,849 (la diferencia es de redondeo). 0,601 es √0,361 (falta multiplicar por 2) y 0,722 es 2 × 0,361 (falta la raíz).'}
+};
+let mcqOk = 0, mcqDone = 0;
+const MCQ_TOTAL = Object.keys(MCQ).length;
+function updateScore(){
+  document.getElementById('scoreNum').textContent = mcqOk + ' / ' + MCQ_TOTAL;
+  const bs = document.getElementById('badgeScore'); if (bs) bs.textContent = mcqOk + ' de ' + MCQ_TOTAL;
+}
+document.querySelectorAll('.mcq').forEach(box => {
+  const Q = MCQ[box.dataset.q]; if (!Q) return;
+  const opts = Q.o.map((o, i) => ({t: o[0], ok: !!o[1], i})).sort(() => Math.random() - 0.5);
+  box.innerHTML = '<p class="mq">❓ ' + Q.q + '</p><div class="mopts">' +
+    opts.map((o, k) => '<button type="button" class="mopt" data-ok="' + (o.ok ? 1 : 0) + '"><span class="ml">' + 'ABCD'[k] + '</span><span>' + o.t + '</span></button>').join('') +
+    '</div><div class="mexp" hidden></div>';
+  box.querySelectorAll('.mopt').forEach(b => b.addEventListener('click', () => {
+    if (box.classList.contains('answered')) return;
+    box.classList.add('answered');
+    const ok = b.dataset.ok === '1'; mcqDone++; if (ok) mcqOk++;
+    b.classList.add(ok ? 'right' : 'wrong');
+    box.querySelectorAll('.mopt').forEach(x => { x.disabled = true; if (x.dataset.ok === '1') x.classList.add('right'); });
+    const ex = box.querySelector('.mexp');
+    ex.innerHTML = '<b>' + (ok ? '✅ ¡Correcto!' : '❌ No es esa.') + '</b> ' + Q.e;
+    ex.className = 'mexp ' + (ok ? 'ok' : 'ko'); ex.hidden = false;
+    updateScore();
+  }));
+});
+updateScore();
+
+renderOH(); showOH();
+</script>
+</body>
+</html>
