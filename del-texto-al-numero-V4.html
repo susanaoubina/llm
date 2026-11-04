@@ -632,7 +632,7 @@ footer{text-align:center;padding:30px 16px 60px;color:var(--muted);font-size:14p
       <div class="n">E</div><div style="flex:1">
       <h3>Dos reglas para medir</h3>
       <p>Busca <b>infantes</b> y baja <b>neighbors</b> a 10. Compara la lista con <b>COSINE</b> y con <b>EUCLIDEAN</b>.</p>
-      <div class="mcq" data-q="pE"></div><div class="mcq" data-q="pE2"></div></div>
+      <div class="mcq" data-q="pE"></div></div>
     </div>
     <button class="done-btn" data-m="6">✅ Misión 6 completada</button>
   </div>
@@ -1327,10 +1327,7 @@ const MCQ = {
     ['Cambian los números, pero el orden de las palabras es el mismo.', 1],
     ['Los números y el orden son exactamente iguales.', 0],
     ['Cambia el orden, pero los números son los mismos.', 0]],
-    e: 'Coseno mide el ángulo entre los vectores; euclídea, la distancia en línea recta entre sus puntas. "Sphereize data" hace que todos los vectores midan lo mismo, así que solo los diferencia el ángulo y las dos medidas ordenan igual. Si la desactivas, el orden puede cambiar.'},
-  pE2: {q: 'Con "Sphereize data" activado, "infante" está a 0,361 de "infantes" con COSINE. ¿Qué distancia marca con EUCLIDEAN? (Pista: euclídea = √(2 × coseno))', o: [
-    ['0,361', 0], ['0,601', 0], ['0,722', 0], ['0,849', 1]],
-    e: '√(2 × 0,361) = √0,722 ≈ 0,850. El Projector marca 0,849 (la diferencia es de redondeo). 0,601 es √0,361 (falta multiplicar por 2) y 0,722 es 2 × 0,361 (falta la raíz).'}
+    e: 'Coseno mide el ángulo entre los vectores; euclídea, la distancia en línea recta entre sus puntas. "Sphereize data" hace que todos los vectores midan lo mismo, así que solo los diferencia el ángulo y las dos medidas ordenan igual. Si la desactivas, el orden puede cambiar.'}
 };
 let mcqOk = 0, mcqDone = 0;
 const MCQ_TOTAL = Object.keys(MCQ).length;
